@@ -1,4 +1,4 @@
-// AIzaSyCrrPrZJkWTwtaL5xBfgd5oPs_GoEZFDeE
+// admin username: admin@test.com, pw: admin123
 
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
@@ -14,6 +14,7 @@ class Auth with ChangeNotifier {
   String? _userId;
   Timer? _authTimer;
   String? _emailAddress;
+  bool isAdmin = false; // flag to indicate if the user is admin
 
   bool get isAuth {
     return token != null;
@@ -39,8 +40,8 @@ class Auth with ChangeNotifier {
     return "";
   }
 
-  Future<void> _authenticate(
-      String email, String password, String urlSegment) async {
+  Future<void> _authenticate(String email, String password, String urlSegment,
+      {bool loginAsAdmin = false}) async {
     // the url for requesting sign up / sign in is done using firebase's REST API,
     // which provides the endpoint to send the request (email ,
     //password and requestSecureToken) with the API key of a realtime database (here firebase itself)
@@ -48,6 +49,11 @@ class Auth with ChangeNotifier {
     final url = Uri.parse(
         "https://identitytoolkit.googleapis.com/v1/accounts:$urlSegment?key=AIzaSyCrrPrZJkWTwtaL5xBfgd5oPs_GoEZFDeE");
     try {
+      if (loginAsAdmin) {
+        if (email != "admin@test.com") {
+          throw HttpException("Not an admin account !");
+        }
+      }
       final response = await http.post(url,
           body: json.encode({
             'email': email,
@@ -66,6 +72,11 @@ class Auth with ChangeNotifier {
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseData['expiresIn'])));
       _emailAddress = email;
+
+      if (loginAsAdmin) {
+        isAdmin = true;
+      }
+
       // print(_expiryDate);
       _autoLogout();
       notifyListeners();
@@ -77,7 +88,8 @@ class Auth with ChangeNotifier {
         'token': _token,
         'userId': _userId,
         'expiryDate': _expiryDate!.toIso8601String(),
-        'email': email
+        'email': email,
+        'isAdmin': isAdmin
       });
       prefs.setString('userData', userData);
     } catch (error) {
@@ -93,6 +105,11 @@ class Auth with ChangeNotifier {
     return _authenticate(email, password, "signInWithPassword");
   }
 
+  Future<void> loginAdmin(String email, String password) async {
+    return _authenticate(email, password, "signInWithPassword",
+        loginAsAdmin: true);
+  }
+
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('userData')) {
@@ -102,11 +119,12 @@ class Auth with ChangeNotifier {
 
     final extractedUserData =
         json.decode(prefs.getString('userData')!); //as Map<String, Object>
-    print(
-        extractedUserData.values.toString()); //to check the user's stored info
-    // print(
-    //     "token: $extractedUserData['token'], userId = $extractedUserData['userId'], expiryDate = $extractedUserData['expiryDate']");
-    // check if the token has expired
+    print("logged in user by auto login: " +
+        extractedUserData['email'] +
+        " isAdmin: " +
+        extractedUserData['isAdmin']
+            .toString()); //to check the user's stored info
+
     final expiryDate =
         DateTime.parse(extractedUserData['expiryDate'].toString());
 
@@ -117,6 +135,7 @@ class Auth with ChangeNotifier {
     _token = extractedUserData['token'].toString();
     _userId = extractedUserData['userId'].toString();
     _expiryDate = expiryDate;
+    isAdmin = extractedUserData['isAdmin'];
 
     notifyListeners(); //this automatically rebuilds the home screen since the 'auth' provider's values has been changed/set
     _autoLogout();

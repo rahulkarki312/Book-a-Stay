@@ -149,7 +149,7 @@ class _AuthCardState extends State<AuthCard>
         });
   }
 
-  Future<void> _submit() async {
+  Future<void> _submit({loginAsAdmin = false}) async {
     if (!_formKey.currentState!.validate()) {
       // Invalid!
       return;
@@ -160,6 +160,10 @@ class _AuthCardState extends State<AuthCard>
     });
     try {
       if (_authMode == AuthMode.Login) {
+        if (loginAsAdmin) {
+          await Provider.of<Auth>(context, listen: false)
+              .loginAdmin(_authData['email']!, _authData['password']!);
+        }
         await Provider.of<Auth>(context, listen: false)
             .login(_authData['email']!, _authData['password']!);
       } else {
@@ -297,14 +301,6 @@ class _AuthCardState extends State<AuthCard>
                     child:
                         Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
                     onPressed: _submit,
-
-                    // shape: RoundedRectangleBorder(
-                    //   borderRadius: BorderRadius.circular(30),
-                    // ),
-                    // padding:
-                    //     EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
-                    // color: Theme.of(context).accentColor,
-                    // textColor: Theme.of(context).primaryColor,
                   ),
                 TextButton(
                   child: Text(
@@ -314,6 +310,12 @@ class _AuthCardState extends State<AuthCard>
                   // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   // textColor: Theme.of(context).colorScheme.secondary,
                 ),
+                TextButton(
+                  child: Text("Log in as Admin"),
+                  onPressed: () {
+                    _submit(loginAsAdmin: true);
+                  },
+                )
               ],
             ),
           ),
