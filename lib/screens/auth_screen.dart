@@ -190,9 +190,9 @@ class _AuthCardState extends State<AuthCard>
       _showErrorDialog(errorMessage);
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    // setState(() {
+    //   _isLoading = false;
+    // });
   }
 
   void _switchAuthMode() {

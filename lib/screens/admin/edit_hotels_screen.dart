@@ -5,25 +5,6 @@ import '../../providers/hotel.dart';
 import '../../providers/hotels.dart';
 import '../../providers/auth.dart';
 
-// class EditHotelScreen extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     // TODO: implement build
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Edit Hotels Screen"),
-//       ),
-//       body: Center(
-//           child: TextButton(
-//         child: Text("Log out"),
-//         onPressed: () {
-//           Provider.of<Auth>(context, listen: false).logout();
-//         },
-//       )),
-//     );
-//   }
-// }
-
 class EditHotelScreen extends StatefulWidget {
   static const routeName = '/edit-hotel';
   @override
@@ -35,14 +16,14 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
   final _descriptionFocusNode = FocusNode();
   final _imageUrlFocusNode = FocusNode();
   final _discountFocusNode = FocusNode();
-  final _categoryFocusNode = FocusNode();
+  final _addressFocusNode = FocusNode();
 
   final _imageUrlController = TextEditingController();
   final _form = GlobalKey<FormState>();
   var _isInit = true;
   var _isLoading = false;
 
-  // if this screen is redirected from the "ADD" IconButton
+  // if this screen is redirected from the "ADD" IconButton. So, the id is null
   var _editedHotel = Hotel(
       id: '',
       title: '',
@@ -61,10 +42,13 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
     'imageUrl': '',
     'discount': '',
     'address': '',
+    'breakfastIncl': true,
   };
+  bool breakfastIncl = true;
 
   @override
   void initState() {
+    breakfastIncl = _initValues['breakfastIncl'];
     _imageUrlFocusNode.addListener(_updateImageUrl);
     super.initState();
   }
@@ -82,33 +66,33 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
 
 // if this screen is redirected from the "Edit" IconButton of a UsersHotelItem
   @override
-  // void didChangeDependencies() {
-  //   // first set the isInit var to true (When the widget is first built), then fetch the
-  //   // selected HotelItem from the "Hotels" provider. Then set the _isInit to false
-  //   // since the HotelItem has already been fetched the first time this widget got built
-  //   if (_isInit) {
-  //     final Hotelid = ModalRoute.of(context)!.settings.arguments;
-  //     if (Hotelid != null) {
-  //       _editedHotel = Provider.of<Hotels>(context, listen: false)
-  //           .findById(Hotelid as String);
-  //       _initValues = {
-  //         'title': _editedHotel.title,
-  //         'description': _editedHotel.description,
-  //         'price': _editedHotel.price.toString(),
-  //         'imageUrl': '',
-  //         'isMan': _editedHotel.isMan,
-  //         'discount': _editedHotel.discount.toString(),
-  //         'category': _editedHotel.category
-  //       };
-  //       _imageUrlController.text = _editedHotel.imageUrl;
-  //     }
-  //   }
+  void didChangeDependencies() {
+    // first set the isInit var to true (When the widget is first built), then fetch the
+    // selected HotelItem from the "Hotels" provider. Then set the _isInit to false
+    // since the HotelItem has already been fetched the first time this widget got built
+    if (_isInit) {
+      final Hotelid = ModalRoute.of(context)!.settings.arguments;
+      if (Hotelid != null) {
+        _editedHotel = Provider.of<Hotels>(context, listen: false)
+            .findById(Hotelid as String);
+        _initValues = {
+          'title': _editedHotel.title,
+          'description': _editedHotel.description,
+          'price': _editedHotel.price.toString(),
+          'imageUrl': '',
+          'breakfastIncl': _editedHotel.breakfastIncl,
+          'discount': _editedHotel.discount.toString(),
+          'address': _editedHotel.address
+        };
+        _imageUrlController.text = _editedHotel.imageUrl;
+      }
+    }
 
-  //   _selectedGender = _initValues['isMan'] == true ? Gender.Men : Gender.Women;
+    breakfastIncl = _initValues['breakfastIncl'];
 
-  //   _isInit = false;
-  //   super.didChangeDependencies();
-  // }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
 
   @override
   void dispose() {
@@ -157,8 +141,7 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
           .updateHotel(_editedHotel.id, _editedHotel);
     }
     setState(() {
-      _isLoading:
-      false;
+      _isLoading = false;
     });
     Navigator.of(context).pop();
   }
@@ -202,7 +185,7 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
-                            return 'Please enter the value';
+                            return 'Please enter the title';
                           }
                           return null;
                         },
@@ -305,9 +288,98 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                         decoration: InputDecoration(labelText: 'Discount %'),
                         onFieldSubmitted: (_) {
                           FocusScope.of(context)
-                              .requestFocus(_categoryFocusNode);
+                              .requestFocus(_addressFocusNode);
                         },
                         textInputAction: TextInputAction.next,
+                      ),
+
+                      TextFormField(
+                        initialValue: _initValues['address'],
+                        onSaved: (value) {
+                          _editedHotel = Hotel(
+                              title: _editedHotel.title,
+                              id: _editedHotel.id,
+                              price: _editedHotel.price,
+                              description: _editedHotel.description,
+                              imageUrl: _editedHotel.imageUrl,
+                              isFavorite: _editedHotel.isFavorite,
+                              discount: _editedHotel.discount,
+                              address: value!,
+                              breakfastIncl: _editedHotel.breakfastIncl);
+                        },
+                        validator: (value) {
+                          if (value!.isEmpty) {
+                            return "Please enter the location";
+                          }
+                          // returning null means no error in validation and the opposite when string is returned
+                          return null;
+                        },
+                        focusNode: _addressFocusNode,
+                        decoration: InputDecoration(labelText: 'Location'),
+                        // onFieldSubmitted: (_) {
+                        //   FocusScope.of(context)
+                        //       .requestFocus(_categoryFocusNode);
+                        // },
+                        textInputAction: TextInputAction.next,
+                      ),
+
+                      // breakfast Incl
+
+                      Row(
+                        children: <Widget>[
+                          Container(
+                            constraints:
+                                BoxConstraints(minWidth: 60, maxWidth: 160),
+                            child: ListTile(
+                              title: const Text('Breakfast Inclusive'),
+                              leading: Radio<bool>(
+                                value: true,
+                                groupValue: breakfastIncl,
+                                onChanged: (bool? value) {
+                                  _editedHotel = Hotel(
+                                      title: _editedHotel.title,
+                                      id: _editedHotel.id,
+                                      price: _editedHotel.price,
+                                      description: _editedHotel.description,
+                                      imageUrl: _editedHotel.imageUrl,
+                                      isFavorite: _editedHotel.isFavorite,
+                                      breakfastIncl: true,
+                                      discount: _editedHotel.discount,
+                                      address: _editedHotel.address);
+                                  setState(() {
+                                    breakfastIncl = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                          Container(
+                            constraints:
+                                BoxConstraints(minWidth: 60, maxWidth: 160),
+                            child: ListTile(
+                              title: const Text('Not available'),
+                              leading: Radio<bool>(
+                                value: false,
+                                groupValue: breakfastIncl,
+                                onChanged: (bool? value) {
+                                  _editedHotel = Hotel(
+                                      title: _editedHotel.title,
+                                      id: _editedHotel.id,
+                                      price: _editedHotel.price,
+                                      description: _editedHotel.description,
+                                      imageUrl: _editedHotel.imageUrl,
+                                      isFavorite: _editedHotel.isFavorite,
+                                      breakfastIncl: false,
+                                      discount: _editedHotel.discount,
+                                      address: _editedHotel.address);
+                                  setState(() {
+                                    breakfastIncl = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
 
                       //image url

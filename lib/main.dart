@@ -7,6 +7,7 @@ import './screens/loading_screen.dart';
 import './screens/home_screen.dart';
 import './screens/admin/admin_home_screen.dart';
 import 'screens/admin/edit_hotels_screen.dart';
+import './providers/hotels.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,6 +21,12 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => Auth()),
+          ChangeNotifierProxyProvider<Auth, Hotels>(
+              create: (_) => Hotels("", "", []),
+              update: (ctx, auth, previousHotels) => Hotels(
+                  auth.token.toString(),
+                  auth.userId.toString(),
+                  previousHotels == null ? [] : previousHotels.hotels)),
         ],
         child: Consumer<Auth>(
           builder: (ctx, auth, _) => MaterialApp(
@@ -41,7 +48,7 @@ class MyApp extends StatelessWidget {
                                 ? LoadingScreen()
                                 : AuthScreen(),
                         // here, if the tryAutoLogin is successful, the auth notifies listeners and
-                        //this whole consumer is rebuilt with auth.isAuth set to true and hence, ProductsOverviewScreen is shown
+                        //this whole consumer is rebuilt with auth.isAuth set to true and hence, HotelsOverviewScreen is shown
                         // otherwise  in any case, the AuthScreen is shown
                       ),
             routes: {
