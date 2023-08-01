@@ -1,4 +1,4 @@
-import 'package:book_a_stay/widgets/hotels_grid.dart';
+import 'package:book_a_stay/widgets/admin/hotels_grid_admin.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth.dart';
@@ -34,12 +34,15 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           IconButton(
               onPressed: () =>
                   Navigator.of(context).pushNamed(EditHotelScreen.routeName),
-              icon: Icon(Icons.add))
+              icon: Icon(Icons.add)),
+          TextButton(
+              onPressed: () => Provider.of<Auth>(context).logout(),
+              child: Text('Log out'))
         ]),
         body: _isLoading
             ? Center(
                 child: CircularProgressIndicator(),
               )
-            : HotelsGrid());
+            : HotelsGridAdmin());
   }
 }
