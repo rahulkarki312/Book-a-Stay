@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/hotel.dart';
+// import '../../providers/hotel.dart';
 import '../../providers/hotels.dart';
 import 'hotel_item_admin.dart';
 
@@ -9,7 +9,7 @@ class HotelsGridAdmin extends StatelessWidget {
   Widget build(BuildContext context) {
     final HotelsData = Provider.of<Hotels>(context);
     final hotels = HotelsData.hotels;
-    final hotelsLength = hotels.length;
+    // final hotelsLength = hotels.length;
     return GridView.builder(
       padding: const EdgeInsets.all(10.0),
       itemCount: hotels.length,

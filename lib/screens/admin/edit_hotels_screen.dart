@@ -151,13 +151,21 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
     // TODO: implement build
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Theme.of(context).accentColor),
+        iconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.secondary),
         backgroundColor: Theme.of(context).primaryColor,
         title: Text(
           "Edit Hotel",
-          style: TextStyle(color: Theme.of(context).accentColor),
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
         ),
-        actions: [IconButton(onPressed: _saveForm, icon: Icon(Icons.save))],
+        actions: [
+          IconButton(
+              onPressed: _saveForm,
+              icon: Icon(
+                Icons.save,
+                color: Colors.white,
+              ))
+        ],
       ),
       body: _isLoading
           ? Center(
@@ -219,6 +227,7 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                           if (double.parse(value) <= 0) {
                             return "Price must be greater than zero";
                           }
+                          return '';
                         },
                         focusNode: _priceFocusNode,
                         decoration: InputDecoration(labelText: 'Price'),

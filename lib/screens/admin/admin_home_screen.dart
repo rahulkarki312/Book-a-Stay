@@ -12,7 +12,6 @@ class AdminHomeScreen extends StatefulWidget {
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   var _isLoading = false;
-  var _isInit = true;
 
   @override
   void initState() {
@@ -31,13 +30,17 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     // TODO: implement build
     return Scaffold(
         appBar: AppBar(title: Text("Admin Screen"), actions: [
+          TextButton(
+              onPressed: () =>
+                  Provider.of<Auth>(context, listen: false).logout(),
+              child: Text(
+                "Log out",
+                style: TextStyle(color: Colors.white),
+              )),
           IconButton(
               onPressed: () =>
                   Navigator.of(context).pushNamed(EditHotelScreen.routeName),
               icon: Icon(Icons.add)),
-          TextButton(
-              onPressed: () => Provider.of<Auth>(context).logout(),
-              child: Text('Log out'))
         ]),
         body: _isLoading
             ? Center(

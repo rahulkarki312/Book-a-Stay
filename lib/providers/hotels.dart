@@ -2,11 +2,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../providers/userfilter.dart';
 
 import './hotel.dart';
-import '../models/http_exceptions.dart';
-
-import 'dart:convert';
+// import '../models/http_exceptions.dart';
 
 class Hotels with ChangeNotifier {
   List<Hotel> _hotels = [];
@@ -18,6 +17,17 @@ class Hotels with ChangeNotifier {
 
   List<Hotel> get hotels {
     return [..._hotels];
+  }
+
+  List<String> get locations {
+    List<String> locations = [];
+    for (Hotel hotel in _hotels) {
+      String location = hotel.address;
+      if (!locations.contains(location)) {
+        locations.add(location);
+      }
+    }
+    return locations;
   }
 
   List<Hotel> get favoriteHotels {
@@ -34,9 +44,9 @@ class Hotels with ChangeNotifier {
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      if (extractedData == null) {
-        return;
-      }
+      // if (extractedData == null) {
+      //   return;
+      // }
 
       final List<Hotel> LoadedHotels = [];
       extractedData.forEach((HotelId, HotelData) {

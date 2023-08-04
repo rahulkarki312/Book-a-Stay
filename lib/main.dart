@@ -8,6 +8,7 @@ import './screens/home_screen.dart';
 import './screens/admin/admin_home_screen.dart';
 import 'screens/admin/edit_hotels_screen.dart';
 import './providers/hotels.dart';
+import './providers/userfilter.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,15 +28,16 @@ class MyApp extends StatelessWidget {
                   auth.token.toString(),
                   auth.userId.toString(),
                   previousHotels == null ? [] : previousHotels.hotels)),
+          ChangeNotifierProvider(create: (_) => UserFilter()),
         ],
         child: Consumer<Auth>(
           builder: (ctx, auth, _) => MaterialApp(
             debugShowCheckedModeBanner: false,
-            theme: ThemeData(
-                primaryColor: Colors.white,
-                accentColor: Colors.black,
-                // colorScheme: ColorScheme(brightness: Brightness.dark, primary: primary, onPrimary: onPrimary, secondary: secondary, onSecondary: onSecondary, error: error, onError: onError, background: background, onBackground: onBackground, surface: surface, onSurface: onSurface),
-                fontFamily: "Montserrat"),
+            //           theme: ThemeData().copyWith(
+            //         colorScheme: ThemeData().colorScheme.copyWith(secondary: Colors.black, primary: Colors.white),
+
+            // ),
+
             title: " ",
             home: auth.isAuth & !auth.isAdmin
                 ? HomeScreen()

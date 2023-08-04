@@ -3,13 +3,13 @@ import 'package:provider/provider.dart';
 
 import '../../screens/admin/edit_hotels_screen.dart';
 import '../../providers/hotel.dart';
-import '../../providers/auth.dart';
+// import '../../providers/auth.dart';
 
 class HotelItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hotel = Provider.of<Hotel>(context, listen: false);
-    final authData = Provider.of<Auth>(context, listen: false);
+    // final authData = Provider.of<Auth>(context, listen: false);
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushNamed(

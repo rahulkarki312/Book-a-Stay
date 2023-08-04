@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/hotel.dart';
+import '../providers/userfilter.dart';
 
 class UserHotelItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hotel = Provider.of<Hotel>(context);
+    final noOfDays = Provider.of<UserFilter>(context)
+        .noOfDays; //no of days of stay set in filter by the user
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -24,7 +27,8 @@ class UserHotelItem extends StatelessWidget {
                 hotel.title,
                 style: TextStyle(color: Colors.white),
               ),
-              Text("\$: ")
+              Text("\$:  ${noOfDays * hotel.price}",
+                  style: TextStyle(color: Colors.white))
             ],
           ),
         )

@@ -30,7 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text("Home Page"),
         actions: [
           TextButton(
-              onPressed: () => Provider.of<Auth>(context).logout(),
+              onPressed: () =>
+                  Provider.of<Auth>(context, listen: false).logout(),
               child: Text(
                 'Log out',
                 style: TextStyle(color: Colors.white),
