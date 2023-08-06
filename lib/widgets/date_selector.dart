@@ -14,7 +14,7 @@ class _DateSelectorState extends State<DateSelector> {
   var today = DateTime.now();
   var _checkInDay = DateTime.now();
   var _checkOutDay = DateTime.now().add(Duration(days: 1));
-  int customerCount = 0;
+  int customerCount = 1;
   String? _selectedLocation;
 
   // void _onDaySelected(DateTime day, DateTime focusedDay) {
@@ -122,7 +122,7 @@ class _DateSelectorState extends State<DateSelector> {
           children: [
             TextButton(
                 onPressed: () {
-                  if (customerCount > 0) {
+                  if (customerCount > 1) {
                     customerCount--;
                     setState(() {});
                   }
@@ -176,64 +176,13 @@ class _DateSelectorState extends State<DateSelector> {
 
         IconButton(
             onPressed: () {
-              Provider.of<UserFilter>(context, listen: false)
-                  .setFilter(_checkInDay, _checkOutDay, _selectedLocation!);
+              Provider.of<UserFilter>(context, listen: false).setFilter(
+                  _checkInDay, _checkOutDay, _selectedLocation!, customerCount);
               //FOR DEBUGGING
               print("${_checkInDay.day}  ${_checkOutDay.day}");
               print(Provider.of<UserFilter>(context, listen: false).noOfDays);
             },
             icon: Icon(Icons.search))
-      ],
-    );
-  }
-}
-
-class LocationDropdownInput extends StatefulWidget {
-  const LocationDropdownInput({super.key, @required this.location});
-
-  final String? location;
-
-  @override
-  State<LocationDropdownInput> createState() => _LocationDropdownInputState();
-}
-
-class _LocationDropdownInputState extends State<LocationDropdownInput> {
-  final TextEditingController locationController = TextEditingController();
-  String? _selectedLocation;
-
-  @override
-  Widget build(BuildContext context) {
-    List<String> locations = Provider.of<Hotels>(context).locations;
-    final List<DropdownMenuEntry<String>> locationEntries =
-        <DropdownMenuEntry<String>>[];
-    for (final location in locations) {
-      locationEntries.add(
-        DropdownMenuEntry<String>(value: location, label: location),
-      );
-    }
-
-    return Column(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              DropdownMenu<String>(
-                controller: locationController,
-                enableFilter: true,
-                leadingIcon: const Icon(Icons.location_city),
-                label: const Text('location'),
-                dropdownMenuEntries: locationEntries,
-                onSelected: (String? location) {
-                  setState(() {
-                    _selectedLocation = location;
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }

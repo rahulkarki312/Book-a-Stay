@@ -9,11 +9,14 @@ class UserFilter with ChangeNotifier {
   DateTime _checkInDay = DateTime.now();
   DateTime _checkOutDay = DateTime.now().add(Duration(days: 1));
   String? _location;
+  int _customerCount = 1;
 
-  void setFilter(DateTime checkInDay, DateTime checkOutDay, String location) {
+  void setFilter(DateTime checkInDay, DateTime checkOutDay, String location,
+      int customerCount) {
     _checkInDay = checkInDay;
     _checkOutDay = checkOutDay;
     _location = location;
+    _customerCount = customerCount;
     notifyListeners();
   }
 
@@ -23,5 +26,9 @@ class UserFilter with ChangeNotifier {
 
   int get noOfDays {
     return _checkOutDay.difference(_checkInDay).inDays;
+  }
+
+  int get customerCount {
+    return _customerCount;
   }
 }

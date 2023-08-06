@@ -59,7 +59,7 @@ class AuthScreen extends StatelessWidget {
                       ),
                       child: Center(
                         child: Text(
-                          'Hamro Shop',
+                          'Book a stay',
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,

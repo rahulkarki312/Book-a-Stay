@@ -146,6 +146,7 @@ class Auth with ChangeNotifier {
     _token = null;
     _userId = null;
     _expiryDate = null;
+    isAdmin = false;
     if (_authTimer != null) {
       _authTimer!.cancel();
       _authTimer = null;

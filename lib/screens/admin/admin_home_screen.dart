@@ -11,11 +11,11 @@ class AdminHomeScreen extends StatefulWidget {
 }
 
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
-  var _isLoading = false;
+  var _isLoading = true;
 
   @override
   void initState() {
-    setState(() => _isLoading = true);
+    // setState(() => _isLoading = true);
 
     Provider.of<Hotels>(context, listen: false).fetchAndSetHotels().then((_) {
       print("Hotels fetched and set");

@@ -49,19 +49,19 @@ class Hotels with ChangeNotifier {
       // }
 
       final List<Hotel> LoadedHotels = [];
-      extractedData.forEach((HotelId, HotelData) {
+      extractedData.forEach((hotelId, hotelData) {
         LoadedHotels.add(Hotel(
-          id: HotelId,
-          title: HotelData['title'],
-          description: HotelData['description'],
-          price: HotelData['price'],
-          imageUrl: HotelData['imageUrl'],
-          breakfastIncl: HotelData['breakfastIncl'] == null
+          id: hotelId,
+          title: hotelData['title'],
+          description: hotelData['description'],
+          price: hotelData['price'],
+          imageUrl: hotelData['imageUrl'],
+          breakfastIncl: hotelData['breakfastIncl'] == null
               ? false
-              : HotelData['breakfastIncl'],
+              : hotelData['breakfastIncl'],
           discount:
-              HotelData['discount'] == null ? 0.0 : (HotelData['discount']),
-          address: HotelData['address'],
+              hotelData['discount'] == null ? 0.0 : (hotelData['discount']),
+          address: hotelData['address'],
         ));
       });
       _hotels = LoadedHotels;

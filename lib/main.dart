@@ -9,6 +9,7 @@ import './screens/admin/admin_home_screen.dart';
 import 'screens/admin/edit_hotels_screen.dart';
 import './providers/hotels.dart';
 import './providers/userfilter.dart';
+import './screens/booking_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,6 +56,7 @@ class MyApp extends StatelessWidget {
                       ),
             routes: {
               EditHotelScreen.routeName: (context) => EditHotelScreen(),
+              BookingPage.routename: (context) => BookingPage()
             },
           ),
         ));
