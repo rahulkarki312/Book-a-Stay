@@ -177,10 +177,7 @@ class _DateSelectorState extends State<DateSelector> {
         IconButton(
             onPressed: () {
               Provider.of<UserFilter>(context, listen: false).setFilter(
-                  _checkInDay, _checkOutDay, _selectedLocation!, customerCount);
-              //FOR DEBUGGING
-              print("${_checkInDay.day}  ${_checkOutDay.day}");
-              print(Provider.of<UserFilter>(context, listen: false).noOfDays);
+                  _checkInDay, _checkOutDay, _selectedLocation, customerCount);
             },
             icon: Icon(Icons.search))
       ],

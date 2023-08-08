@@ -10,6 +10,8 @@ import 'screens/admin/edit_hotels_screen.dart';
 import './providers/hotels.dart';
 import './providers/userfilter.dart';
 import './screens/booking_page.dart';
+import './providers/orders.dart';
+import 'screens/orders_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,6 +31,12 @@ class MyApp extends StatelessWidget {
                   auth.token.toString(),
                   auth.userId.toString(),
                   previousHotels == null ? [] : previousHotels.hotels)),
+          ChangeNotifierProxyProvider<Auth, Orders>(
+              create: (_) => Orders("", "", []),
+              update: (ctx, auth, previousOrders) => Orders(
+                  auth.token.toString(),
+                  auth.userId.toString(),
+                  previousOrders == null ? [] : previousOrders.orders)),
           ChangeNotifierProvider(create: (_) => UserFilter()),
         ],
         child: Consumer<Auth>(
@@ -56,7 +64,8 @@ class MyApp extends StatelessWidget {
                       ),
             routes: {
               EditHotelScreen.routeName: (context) => EditHotelScreen(),
-              BookingPage.routename: (context) => BookingPage()
+              BookingPage.routename: (context) => BookingPage(),
+              OrdersScreen.routeName: (context) => OrdersScreen(),
             },
           ),
         ));

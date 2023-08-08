@@ -184,10 +184,12 @@ class _AuthCardState extends State<AuthCard>
         errorMessage = "The password you entered is wrong";
       }
       _showErrorDialog(errorMessage);
+      setState(() => _isLoading = false);
     } catch (error) {
       const errorMessage =
           "Could not authenticate you, please try again later.";
       _showErrorDialog(errorMessage);
+      setState(() => _isLoading = false);
     }
 
     // setState(() {

@@ -34,7 +34,7 @@ class Hotels with ChangeNotifier {
     return _hotels.where((hotel) => hotel.isFavorite).toList();
   }
 
-  Hotel findById(String id) {
+  Hotel findById(String? id) {
     return _hotels.firstWhere((hotel) => hotel.id == id);
   }
 
