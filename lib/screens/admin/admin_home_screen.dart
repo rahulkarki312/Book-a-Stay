@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth.dart';
 import '../../providers/hotels.dart';
 import './edit_hotels_screen.dart';
+import '../../widgets/admin/home_drawer_admin.dart';
 
 class AdminHomeScreen extends StatefulWidget {
   @override
@@ -15,7 +16,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   @override
   void initState() {
-    // setState(() => _isLoading = true);
+    setState(() => _isLoading = true);
 
     Provider.of<Hotels>(context, listen: false).fetchAndSetHotels().then((_) {
       print("Hotels fetched and set");
@@ -29,6 +30,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
+        drawer: HomeDrawerAdmin(),
         appBar: AppBar(title: Text("Admin Screen"), actions: [
           TextButton(
               onPressed: () =>

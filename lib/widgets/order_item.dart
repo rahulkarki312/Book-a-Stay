@@ -26,38 +26,79 @@ class _OrderItemState extends State<OrderItem> {
     final Hotel bookedHotel = Provider.of<Hotels>(context, listen: false)
         .findById(widget.order.hotelId);
 
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text('${bookedHotel.title}  \$${widget.order.price}'),
-            subtitle: Text(
-              "${widget.order.checkOutDay.difference(widget.order.checkOutDay).inDays.toString()} days",
-            ),
-            trailing: IconButton(
-              icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
-              onPressed: () {
-                setState(() {
-                  _expanded = !_expanded;
-                });
-              },
-            ),
-          ),
-          if (_expanded)
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 15, vertical: 4),
-              child: Row(
-                children: [
-                  (Icon(Icons.people)),
-                  Text(widget.order.customerCount.toString()),
-                  SizedBox(
-                    width: 30,
-                  ),
+    return Dismissible(
+      key: ValueKey(widget.order.id),
+      background: Container(
+        color: Theme.of(context).colorScheme.error,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        margin: const EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 4,
+        ),
+        child: const Icon(
+          Icons.delete,
+          color: Colors.white,
+          size: 40,
+        ),
+      ),
+      confirmDismiss: (direction) => showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                title: const Text("Are you sure?"),
+                content: const Text("Do you want to delete this booking?"),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(false);
+                      },
+                      child: const Text("No")),
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(true);
+                      },
+                      child: const Text("Yes"))
                 ],
+              )),
+      direction: DismissDirection.endToStart,
+      onDismissed: (direction) {
+        Provider.of<Orders>(context, listen: false)
+            .removeOrder(widget.order.id);
+      },
+      child: Card(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          children: <Widget>[
+            ListTile(
+              title: Text('${bookedHotel.title}  \$${widget.order.price}'),
+              subtitle: Text(
+                "${widget.order.checkOutDay.difference(widget.order.checkInDay).inDays} days",
+                // "${widget.order.checkOutDay} ${widget.order.checkInDay}"
               ),
-            )
-        ],
+              trailing: IconButton(
+                icon: Icon(_expanded ? Icons.expand_less : Icons.expand_more),
+                onPressed: () {
+                  setState(() {
+                    _expanded = !_expanded;
+                  });
+                },
+              ),
+            ),
+            if (_expanded)
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 4),
+                child: Row(
+                  children: [
+                    (Icon(Icons.people)),
+                    Text(widget.order.customerCount.toString()),
+                    SizedBox(
+                      width: 30,
+                    ),
+                  ],
+                ),
+              )
+          ],
+        ),
       ),
     );
   }

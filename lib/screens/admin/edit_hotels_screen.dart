@@ -33,7 +33,8 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
       isFavorite: false,
       discount: 0,
       address: '',
-      breakfastIncl: false);
+      breakfastIncl: false,
+      reviews: []);
 
   Map<String, dynamic> _initValues = {
     'title': '',
@@ -181,15 +182,17 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                         initialValue: _initValues['title'],
                         onSaved: (value) {
                           _editedHotel = Hotel(
-                              title: value!,
-                              id: _editedHotel.id,
-                              price: _editedHotel.price,
-                              description: _editedHotel.description,
-                              imageUrl: _editedHotel.imageUrl,
-                              isFavorite: _editedHotel.isFavorite,
-                              discount: _editedHotel.discount,
-                              address: _editedHotel.address,
-                              breakfastIncl: _editedHotel.breakfastIncl);
+                            title: value!,
+                            id: _editedHotel.id,
+                            price: _editedHotel.price,
+                            description: _editedHotel.description,
+                            imageUrl: _editedHotel.imageUrl,
+                            isFavorite: _editedHotel.isFavorite,
+                            discount: _editedHotel.discount,
+                            address: _editedHotel.address,
+                            breakfastIncl: _editedHotel.breakfastIncl,
+                            reviews: _editedHotel.reviews,
+                          );
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -207,15 +210,17 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                         initialValue: _initValues['price'],
                         onSaved: (value) {
                           _editedHotel = Hotel(
-                              title: _editedHotel.title,
-                              id: _editedHotel.id,
-                              price: double.parse(value!),
-                              description: _editedHotel.description,
-                              imageUrl: _editedHotel.imageUrl,
-                              isFavorite: _editedHotel.isFavorite,
-                              discount: _editedHotel.discount,
-                              address: _editedHotel.address,
-                              breakfastIncl: _editedHotel.breakfastIncl);
+                            title: _editedHotel.title,
+                            id: _editedHotel.id,
+                            price: double.parse(value!),
+                            description: _editedHotel.description,
+                            imageUrl: _editedHotel.imageUrl,
+                            isFavorite: _editedHotel.isFavorite,
+                            discount: _editedHotel.discount,
+                            address: _editedHotel.address,
+                            breakfastIncl: _editedHotel.breakfastIncl,
+                            reviews: _editedHotel.reviews,
+                          );
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -227,7 +232,7 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                           if (double.parse(value) <= 0) {
                             return "Price must be greater than zero";
                           }
-                          return '';
+                          return null;
                         },
                         focusNode: _priceFocusNode,
                         decoration: InputDecoration(labelText: 'Price'),
@@ -242,15 +247,17 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                         initialValue: _initValues['description'],
                         onSaved: (value) {
                           _editedHotel = Hotel(
-                              title: _editedHotel.title,
-                              id: _editedHotel.id,
-                              price: _editedHotel.price,
-                              description: value!,
-                              imageUrl: _editedHotel.imageUrl,
-                              isFavorite: _editedHotel.isFavorite,
-                              discount: _editedHotel.discount,
-                              address: _editedHotel.address,
-                              breakfastIncl: _editedHotel.breakfastIncl);
+                            title: _editedHotel.title,
+                            id: _editedHotel.id,
+                            price: _editedHotel.price,
+                            description: value!,
+                            imageUrl: _editedHotel.imageUrl,
+                            isFavorite: _editedHotel.isFavorite,
+                            discount: _editedHotel.discount,
+                            address: _editedHotel.address,
+                            breakfastIncl: _editedHotel.breakfastIncl,
+                            reviews: _editedHotel.reviews,
+                          );
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -276,15 +283,17 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                         initialValue: _initValues['discount'],
                         onSaved: (value) {
                           _editedHotel = Hotel(
-                              title: _editedHotel.title,
-                              id: _editedHotel.id,
-                              price: _editedHotel.price,
-                              description: _editedHotel.description,
-                              imageUrl: _editedHotel.imageUrl,
-                              isFavorite: _editedHotel.isFavorite,
-                              discount: double.parse(value!),
-                              address: _editedHotel.address,
-                              breakfastIncl: _editedHotel.breakfastIncl);
+                            title: _editedHotel.title,
+                            id: _editedHotel.id,
+                            price: _editedHotel.price,
+                            description: _editedHotel.description,
+                            imageUrl: _editedHotel.imageUrl,
+                            isFavorite: _editedHotel.isFavorite,
+                            discount: double.parse(value!),
+                            address: _editedHotel.address,
+                            breakfastIncl: _editedHotel.breakfastIncl,
+                            reviews: _editedHotel.reviews,
+                          );
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -306,15 +315,17 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                         initialValue: _initValues['address'],
                         onSaved: (value) {
                           _editedHotel = Hotel(
-                              title: _editedHotel.title,
-                              id: _editedHotel.id,
-                              price: _editedHotel.price,
-                              description: _editedHotel.description,
-                              imageUrl: _editedHotel.imageUrl,
-                              isFavorite: _editedHotel.isFavorite,
-                              discount: _editedHotel.discount,
-                              address: value!,
-                              breakfastIncl: _editedHotel.breakfastIncl);
+                            title: _editedHotel.title,
+                            id: _editedHotel.id,
+                            price: _editedHotel.price,
+                            description: _editedHotel.description,
+                            imageUrl: _editedHotel.imageUrl,
+                            isFavorite: _editedHotel.isFavorite,
+                            discount: _editedHotel.discount,
+                            address: value!,
+                            breakfastIncl: _editedHotel.breakfastIncl,
+                            reviews: _editedHotel.reviews,
+                          );
                         },
                         validator: (value) {
                           if (value!.isEmpty) {
@@ -346,15 +357,17 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                                 groupValue: breakfastIncl,
                                 onChanged: (bool? value) {
                                   _editedHotel = Hotel(
-                                      title: _editedHotel.title,
-                                      id: _editedHotel.id,
-                                      price: _editedHotel.price,
-                                      description: _editedHotel.description,
-                                      imageUrl: _editedHotel.imageUrl,
-                                      isFavorite: _editedHotel.isFavorite,
-                                      breakfastIncl: true,
-                                      discount: _editedHotel.discount,
-                                      address: _editedHotel.address);
+                                    title: _editedHotel.title,
+                                    id: _editedHotel.id,
+                                    price: _editedHotel.price,
+                                    description: _editedHotel.description,
+                                    imageUrl: _editedHotel.imageUrl,
+                                    isFavorite: _editedHotel.isFavorite,
+                                    breakfastIncl: true,
+                                    discount: _editedHotel.discount,
+                                    address: _editedHotel.address,
+                                    reviews: _editedHotel.reviews,
+                                  );
                                   setState(() {
                                     breakfastIncl = value!;
                                   });
@@ -372,15 +385,17 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                                 groupValue: breakfastIncl,
                                 onChanged: (bool? value) {
                                   _editedHotel = Hotel(
-                                      title: _editedHotel.title,
-                                      id: _editedHotel.id,
-                                      price: _editedHotel.price,
-                                      description: _editedHotel.description,
-                                      imageUrl: _editedHotel.imageUrl,
-                                      isFavorite: _editedHotel.isFavorite,
-                                      breakfastIncl: false,
-                                      discount: _editedHotel.discount,
-                                      address: _editedHotel.address);
+                                    title: _editedHotel.title,
+                                    id: _editedHotel.id,
+                                    price: _editedHotel.price,
+                                    description: _editedHotel.description,
+                                    imageUrl: _editedHotel.imageUrl,
+                                    isFavorite: _editedHotel.isFavorite,
+                                    breakfastIncl: false,
+                                    discount: _editedHotel.discount,
+                                    address: _editedHotel.address,
+                                    reviews: _editedHotel.reviews,
+                                  );
                                   setState(() {
                                     breakfastIncl = value!;
                                   });
@@ -416,15 +431,17 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
                               child: TextFormField(
                             onSaved: (value) {
                               _editedHotel = Hotel(
-                                  title: _editedHotel.title,
-                                  id: _editedHotel.id,
-                                  price: _editedHotel.price,
-                                  description: _editedHotel.description,
-                                  imageUrl: value!,
-                                  isFavorite: _editedHotel.isFavorite,
-                                  discount: _editedHotel.discount,
-                                  address: _editedHotel.address,
-                                  breakfastIncl: _editedHotel.breakfastIncl);
+                                title: _editedHotel.title,
+                                id: _editedHotel.id,
+                                price: _editedHotel.price,
+                                description: _editedHotel.description,
+                                imageUrl: value!,
+                                isFavorite: _editedHotel.isFavorite,
+                                discount: _editedHotel.discount,
+                                address: _editedHotel.address,
+                                breakfastIncl: _editedHotel.breakfastIncl,
+                                reviews: _editedHotel.reviews,
+                              );
                             },
                             validator: (value) {
                               if (value!.isEmpty) {

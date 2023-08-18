@@ -14,10 +14,14 @@ class Auth with ChangeNotifier {
   String? _userId;
   Timer? _authTimer;
   String? _emailAddress;
-  bool isAdmin = false; // flag to indicate if the user is admin
+  bool _isAdmin = false; // flag to indicate if the user is admin
 
   bool get isAuth {
     return token != null;
+  }
+
+  bool get isAdmin {
+    return _isAdmin;
   }
 
   String? get token {
@@ -68,13 +72,14 @@ class Auth with ChangeNotifier {
       }
       // if no error occurs / the user is authenticated
       _token = responseData['idToken'];
+      print("token: $_token ");
       _userId = responseData['localId'];
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseData['expiresIn'])));
       _emailAddress = email;
 
       if (loginAsAdmin) {
-        isAdmin = true;
+        _isAdmin = true;
       }
 
       // print(_expiryDate);
@@ -135,7 +140,7 @@ class Auth with ChangeNotifier {
     _token = extractedUserData['token'].toString();
     _userId = extractedUserData['userId'].toString();
     _expiryDate = expiryDate;
-    isAdmin = extractedUserData['isAdmin'];
+    _isAdmin = extractedUserData['isAdmin'];
 
     notifyListeners(); //this automatically rebuilds the home screen since the 'auth' provider's values has been changed/set
     _autoLogout();
@@ -146,7 +151,7 @@ class Auth with ChangeNotifier {
     _token = null;
     _userId = null;
     _expiryDate = null;
-    isAdmin = false;
+    _isAdmin = false;
     if (_authTimer != null) {
       _authTimer!.cancel();
       _authTimer = null;

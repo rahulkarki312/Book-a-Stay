@@ -1,6 +1,7 @@
 // import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'userReview.dart';
 // import 'package:http/http.dart' as http;
 
 // import '../providers/hotels.dart';
@@ -15,17 +16,20 @@ class Hotel with ChangeNotifier {
   final num discount;
   final String address;
   final bool breakfastIncl;
+  final List<ReviewDetails> reviews;
 
-  Hotel(
-      {required this.id,
-      required this.title,
-      required this.description,
-      required this.price,
-      required this.imageUrl,
-      this.isFavorite = false,
-      required this.discount,
-      required this.address,
-      required this.breakfastIncl});
+  Hotel({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.price,
+    required this.imageUrl,
+    this.isFavorite = false,
+    required this.discount,
+    required this.address,
+    required this.breakfastIncl,
+    required this.reviews,
+  });
 
   // Future<void> toggleFavoriteStatus(String authToken, String userId) async {
   //   isFavorite = !isFavorite;

@@ -13,29 +13,33 @@ class UserHotelItem extends StatelessWidget {
     return GestureDetector(
         onTap: () => Navigator.of(context)
             .pushNamed(BookingPage.routename, arguments: hotel.id),
-        child: Stack(
-          alignment: Alignment.center,
+        child: Column(
           children: [
-            Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                child: Image.network(
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                    // height: MediaQuery.of(context).size.height * 0.5,
+                    // width: MediaQuery.of(context).size.width,
+                    child: Image.network(
                   hotel.imageUrl,
                   fit: BoxFit.cover,
                 )),
-            Positioned(
-              bottom: 20,
-              child: Column(
-                children: [
-                  Text(
-                    hotel.title,
-                    style: TextStyle(color: Colors.white),
+                Positioned(
+                  bottom: 20,
+                  child: Column(
+                    children: [
+                      Text(
+                        hotel.title,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text("\$:  ${noOfDays * hotel.price}",
+                          style: TextStyle(color: Colors.white))
+                    ],
                   ),
-                  Text("\$:  ${noOfDays * hotel.price}",
-                      style: TextStyle(color: Colors.white))
-                ],
-              ),
-            )
+                )
+              ],
+            ),
           ],
         ));
   }

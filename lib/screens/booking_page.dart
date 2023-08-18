@@ -7,6 +7,8 @@ import '../providers/orders.dart';
 import '../providers/order.dart';
 import '../providers/auth.dart';
 import '../widgets/home_drawer.dart';
+import '../widgets/review_item.dart';
+import '../providers/userReview.dart';
 
 class BookingPage extends StatefulWidget {
   static const routename = '/booking-page';
@@ -17,6 +19,14 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   String? hotelId;
   bool _isLoading = false;
+  bool _reviewIsLoading = false;
+  final _reviewNode = FocusNode();
+  final _ratingNode = FocusNode();
+  final _form = GlobalKey<FormState>();
+  final _reviewController = TextEditingController();
+  final _ratingController = TextEditingController();
+  var _isInit = true;
+
   @override
   void initState() {
     super.initState();
@@ -27,11 +37,33 @@ class _BookingPageState extends State<BookingPage> {
     var routedHotelId = ModalRoute.of(context)!.settings.arguments.toString();
     if (routedHotelId != null) {
       hotelId = routedHotelId;
+      if (_isInit) {
+        Provider.of<Hotels>(context, listen: false)
+            .fetchAndSetReviews(hotelId!);
+        _isInit = false;
+      }
     } else {
       Navigator.of(context).pop();
     }
 
     super.didChangeDependencies();
+  }
+
+  Future<void> _saveForm() async {
+    final isValid = _form.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
+    _form.currentState!.save();
+    setState(() {
+      _reviewIsLoading = true;
+    });
+    Provider.of<Hotels>(context, listen: false)
+        .addReview(
+            _reviewController.text, int.parse(_ratingController.text), hotelId!)
+        .then((value) => setState(() {
+              _reviewIsLoading = false;
+            }));
   }
 
   @override
@@ -49,11 +81,24 @@ class _BookingPageState extends State<BookingPage> {
     int customerCount =
         Provider.of<UserFilter>(context, listen: false).customerCount;
 
+    List<ReviewDetails> hotelReviews = Provider.of<Hotels>(context).reviews;
+
     // TODO: implement build
     return Scaffold(
-        appBar: AppBar(title: Text("Book ${hotel.title}")),
+        appBar: AppBar(
+          title: Text("Book ${hotel.title}"),
+          actions: [
+            TextButton(
+              child: Icon(
+                Icons.arrow_left_sharp,
+                color: Colors.white,
+              ),
+              onPressed: () => Navigator.of(context).pop(),
+            )
+          ],
+        ),
         drawer: HomeDrawer(),
-        body: Column(
+        body: ListView(
           children: [
             Stack(
               alignment: Alignment.center,
@@ -143,7 +188,64 @@ class _BookingPageState extends State<BookingPage> {
                                 ));
                       }
                     },
-                    child: Text("Book Now"))
+                    child: Text(
+                      "Book Now",
+                      style: TextStyle(color: Colors.black),
+                    )),
+            SizedBox(height: 20),
+            Text('Write a review'),
+            Form(
+                key: _form,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _reviewController,
+                      focusNode: _reviewNode,
+                      decoration: InputDecoration(labelText: 'Review'),
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus(_ratingNode);
+                      },
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter a Review';
+                        }
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: _ratingController,
+                      focusNode: _ratingNode,
+                      decoration: InputDecoration(labelText: 'rating'),
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (_) {
+                        FocusScope.of(context).requestFocus();
+                      },
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please give some rating';
+                        }
+                        return null;
+                      },
+                    ),
+                    _reviewIsLoading
+                        ? const CircularProgressIndicator()
+                        : TextButton(
+                            onPressed: _saveForm, child: const Text("submit"))
+                  ],
+                )),
+
+            // hotel reviews section
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(10.0),
+              itemCount: hotelReviews.length,
+              itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
+                value: hotelReviews[i],
+                child: ReviewItem(),
+              ),
+            )
           ],
         ));
   }

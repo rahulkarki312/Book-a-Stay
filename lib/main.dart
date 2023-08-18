@@ -12,6 +12,8 @@ import './providers/userfilter.dart';
 import './screens/booking_page.dart';
 import './providers/orders.dart';
 import 'screens/orders_screen.dart';
+import 'screens/admin/orders_screen_admin.dart';
+import './providers/userReview.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,12 +34,21 @@ class MyApp extends StatelessWidget {
                   auth.userId.toString(),
                   previousHotels == null ? [] : previousHotels.hotels)),
           ChangeNotifierProxyProvider<Auth, Orders>(
-              create: (_) => Orders("", "", []),
-              update: (ctx, auth, previousOrders) => Orders(
-                  auth.token.toString(),
-                  auth.userId.toString(),
-                  previousOrders == null ? [] : previousOrders.orders)),
+            create: (_) => Orders("", "", [], false),
+            update: (ctx, auth, previousOrders) => Orders(
+                auth.token.toString(),
+                auth.userId.toString(),
+                previousOrders == null ? [] : previousOrders.orders,
+                auth.isAdmin),
+          ),
           ChangeNotifierProvider(create: (_) => UserFilter()),
+          // ChangeNotifierProxyProvider<Auth, UserReview>(
+          //   create: (_) => UserReview("", "", []),
+          //   update: (ctx, auth, previousReviews) => UserReview(
+          //       auth.token.toString(),
+          //       auth.userId.toString(),
+          //       previousReviews == null ? [] : previousReviews.reviews),
+          // ),
         ],
         child: Consumer<Auth>(
           builder: (ctx, auth, _) => MaterialApp(
@@ -66,6 +77,7 @@ class MyApp extends StatelessWidget {
               EditHotelScreen.routeName: (context) => EditHotelScreen(),
               BookingPage.routename: (context) => BookingPage(),
               OrdersScreen.routeName: (context) => OrdersScreen(),
+              OrdersScreenAdmin.routeName: (context) => OrdersScreenAdmin(),
             },
           ),
         ));
