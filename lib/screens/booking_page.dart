@@ -19,13 +19,12 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   String? hotelId;
   bool _isLoading = false;
-  bool _reviewIsLoading = false;
+  bool _reviewFormIsLoading = false;
   final _reviewNode = FocusNode();
   final _ratingNode = FocusNode();
   final _form = GlobalKey<FormState>();
   final _reviewController = TextEditingController();
   final _ratingController = TextEditingController();
-  var _isInit = true;
 
   @override
   void initState() {
@@ -37,11 +36,6 @@ class _BookingPageState extends State<BookingPage> {
     var routedHotelId = ModalRoute.of(context)!.settings.arguments.toString();
     if (routedHotelId != null) {
       hotelId = routedHotelId;
-      if (_isInit) {
-        Provider.of<Hotels>(context, listen: false)
-            .fetchAndSetReviews(hotelId!);
-        _isInit = false;
-      }
     } else {
       Navigator.of(context).pop();
     }
@@ -56,13 +50,13 @@ class _BookingPageState extends State<BookingPage> {
     }
     _form.currentState!.save();
     setState(() {
-      _reviewIsLoading = true;
+      _reviewFormIsLoading = true;
     });
     Provider.of<Hotels>(context, listen: false)
         .addReview(
             _reviewController.text, int.parse(_ratingController.text), hotelId!)
         .then((value) => setState(() {
-              _reviewIsLoading = false;
+              _reviewFormIsLoading = false;
             }));
   }
 
@@ -80,8 +74,6 @@ class _BookingPageState extends State<BookingPage> {
     int noOfDays = checkOutDay.difference(checkInDay).inDays;
     int customerCount =
         Provider.of<UserFilter>(context, listen: false).customerCount;
-
-    List<ReviewDetails> hotelReviews = Provider.of<Hotels>(context).reviews;
 
     // TODO: implement build
     return Scaffold(
@@ -228,7 +220,7 @@ class _BookingPageState extends State<BookingPage> {
                         return null;
                       },
                     ),
-                    _reviewIsLoading
+                    _reviewFormIsLoading
                         ? const CircularProgressIndicator()
                         : TextButton(
                             onPressed: _saveForm, child: const Text("submit"))
@@ -236,16 +228,37 @@ class _BookingPageState extends State<BookingPage> {
                 )),
 
             // hotel reviews section
-            ListView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(10.0),
-              itemCount: hotelReviews.length,
-              itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
-                value: hotelReviews[i],
-                child: ReviewItem(),
-              ),
-            )
+            FutureBuilder(
+              future: Provider.of<Hotels>(context, listen: false)
+                  .fetchAndSetReviews(hotelId!),
+              builder: (ctx, dataSnapshot) {
+                if (dataSnapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else {
+                  if (dataSnapshot.error != null) {
+                    print(
+                        'orders_screen :An error occurred! ${dataSnapshot.error.toString()}');
+                    // Do error handling stuff
+                    return const Center(
+                      child: Text('An error occurred!'),
+                    );
+                  } else {
+                    return Consumer<Hotels>(
+                      builder: (ctx, hotels, child) => ListView.builder(
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.all(10.0),
+                        itemCount: hotels.reviews.length,
+                        itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
+                          value: hotels.reviews[i],
+                          child: ReviewItem(hotelId!),
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
           ],
         ));
   }

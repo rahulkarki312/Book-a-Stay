@@ -14,6 +14,7 @@ import './providers/orders.dart';
 import 'screens/orders_screen.dart';
 import 'screens/admin/orders_screen_admin.dart';
 import './providers/userReview.dart';
+import 'screens/users_favorites_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -78,6 +79,8 @@ class MyApp extends StatelessWidget {
               BookingPage.routename: (context) => BookingPage(),
               OrdersScreen.routeName: (context) => OrdersScreen(),
               OrdersScreenAdmin.routeName: (context) => OrdersScreenAdmin(),
+              UsersFavoritesScreen.RouteName: (context) =>
+                  UsersFavoritesScreen(),
             },
           ),
         ));

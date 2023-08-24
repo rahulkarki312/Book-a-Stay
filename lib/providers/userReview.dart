@@ -2,12 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class ReviewDetails with ChangeNotifier {
+  String id;
   String userId;
   String review;
   int rating;
   DateTime date;
   ReviewDetails(
-      {required this.userId,
+      {required this.id,
+      required this.userId,
       required this.review,
       required this.rating,
       required this.date});

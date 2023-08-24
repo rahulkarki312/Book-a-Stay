@@ -6,17 +6,31 @@ import 'hotel_item.dart';
 import '../providers/userfilter.dart';
 
 class HotelsGrid extends StatelessWidget {
+  final isFavorite;
+  HotelsGrid({this.isFavorite = false});
+
   @override
   Widget build(BuildContext context) {
-    final HotelsData = Provider.of<Hotels>(context);
+    final hotelsData = Provider.of<Hotels>(context);
     final location = Provider.of<UserFilter>(context).location;
 
-    final hotels = location == null
-        ? HotelsData.hotels
-        : HotelsData.hotels
-            .where((hotel) => hotel.address == location)
-            .toList();
-    // final hotels = HotelsData.hotels;
+    // filtering hotels
+
+    final hotels = isFavorite
+        ? hotelsData.favoriteHotels
+        : location == null
+            ? hotelsData.hotels
+            : hotelsData.hotels
+                .where((hotel) => hotel.address == location)
+                .toList();
+
+    // final hotels = location == null
+    //     ? hotelsData.hotels
+    //     : hotelsData.hotels
+    //         .where((hotel) => hotel.address == location)
+    //         .toList();
+
+    // final hotels = hotelsData.hotels;
     // final hotelsLength = hotels.length;
     return GridView.builder(
       physics: NeverScrollableScrollPhysics(),

@@ -1,8 +1,8 @@
-// import 'dart:convert';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'userReview.dart';
-// import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 
 // import '../providers/hotels.dart';
 
@@ -31,16 +31,15 @@ class Hotel with ChangeNotifier {
     required this.reviews,
   });
 
-  // Future<void> toggleFavoriteStatus(String authToken, String userId) async {
-  //   isFavorite = !isFavorite;
-  //   notifyListeners();
-  //   final url = Uri.parse(
-  //       'https://my-project-e0439-default-rtdb.firebaseio.com/userFavorites/$userId/$id.json?auth=$authToken');
-  //   var response = await http.put(url,
-  //       body: json.encode(
-  //         isFavorite,
-  //       ));
+  Future<void> toggleFavoriteStatus(String authToken, String userId) async {
+    isFavorite = !isFavorite;
+    final url = Uri.parse(
+        'https://book-a-stay-app-default-rtdb.firebaseio.com/userfavorites/$userId/$id.json?auth=$authToken');
+    var response = await http.put(url,
+        body: json.encode(
+          isFavorite,
+        ));
 
-  //   notifyListeners();
-  // }
+    notifyListeners();
+  }
 }

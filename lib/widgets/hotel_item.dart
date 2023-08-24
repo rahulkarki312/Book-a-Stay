@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/hotel.dart';
 import '../providers/userfilter.dart';
+import '../providers/auth.dart';
 import '../screens/booking_page.dart';
 
 class UserHotelItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hotel = Provider.of<Hotel>(context);
+    final isFavorite = hotel.isFavorite;
     final noOfDays = Provider.of<UserFilter>(context)
         .noOfDays; //no of days of stay set in filter by the user
+    final auth = Provider.of<Auth>(context, listen: false);
     return GestureDetector(
         onTap: () => Navigator.of(context)
             .pushNamed(BookingPage.routename, arguments: hotel.id),
@@ -37,7 +40,18 @@ class UserHotelItem extends StatelessWidget {
                           style: TextStyle(color: Colors.white))
                     ],
                   ),
-                )
+                ),
+                Positioned(
+                    top: 10,
+                    right: 5,
+                    child: IconButton(
+                      icon: isFavorite
+                          ? const Icon(Icons.favorite)
+                          : const Icon(Icons.favorite_border_outlined),
+                      onPressed: () =>
+                          Provider.of<Hotel>(context, listen: false)
+                              .toggleFavoriteStatus(auth.token!, auth.userId!),
+                    ))
               ],
             ),
           ],

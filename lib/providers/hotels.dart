@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../providers/userfilter.dart';
 import 'userReview.dart';
-
+import '../models/http_exceptions.dart';
 import './hotel.dart';
 // import '../models/http_exceptions.dart';
 
@@ -43,9 +43,14 @@ class Hotels with ChangeNotifier {
   Future fetchAndSetHotels() async {
     final url = Uri.parse(
         "https://book-a-stay-app-default-rtdb.firebaseio.com/hotels.json?auth=$authToken");
+    final favoriteDataUrl = Uri.parse(
+        'https://book-a-stay-app-default-rtdb.firebaseio.com/userfavorites/$userId.json?auth=$authToken');
+
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final favoriteResponse = await http.get(favoriteDataUrl);
+      final favoriteData = json.decode(favoriteResponse.body);
 
       final List<Hotel> LoadedHotels = [];
       extractedData.forEach((hotelId, hotelData) {
@@ -61,6 +66,8 @@ class Hotels with ChangeNotifier {
           discount:
               hotelData['discount'] == null ? 0.0 : (hotelData['discount']),
           address: hotelData['address'],
+          isFavorite:
+              favoriteData == null ? false : favoriteData[hotelId] ?? false,
           reviews: [],
         ));
       });
@@ -141,7 +148,7 @@ class Hotels with ChangeNotifier {
         final postUrl = Uri.parse(
             "https://book-a-stay-app-default-rtdb.firebaseio.com/hotels/$hotelId/reviews.json?auth=$authToken");
 
-        await http.post(postUrl,
+        final response = await http.post(postUrl,
             body: json.encode({
               'userId': userId,
               'review': review,
@@ -149,6 +156,7 @@ class Hotels with ChangeNotifier {
               'date': DateTime.now().toString()
             }));
         _reviews.add(ReviewDetails(
+            id: json.decode(response.body)['name'],
             userId: userId,
             review: review,
             rating: rating,
@@ -163,29 +171,44 @@ class Hotels with ChangeNotifier {
   }
 
   Future<void> fetchAndSetReviews(String hotelId) async {
-    print("fetch reviews called");
     final url = Uri.parse(
         "https://book-a-stay-app-default-rtdb.firebaseio.com/hotels/$hotelId/reviews.json?auth=$authToken");
+    List<ReviewDetails> loadedReviews = [];
     try {
       final response = await http.get(url);
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       // print(extractedData);
       extractedData.forEach((reviewId, review) {
-        _reviews.add(ReviewDetails(
+        loadedReviews.add(ReviewDetails(
+            id: reviewId,
             userId: review['userId'],
             review: review['review'],
             rating: int.parse(review['rating'].toString()),
             date: DateTime.parse(review['date'])));
       });
-      print(_reviews.length);
+      _reviews = loadedReviews;
       notifyListeners();
     } catch (error) {
       throw error;
     }
+  }
 
-    // for (ReviewDetails review in _reviews) {
-    //   print(review.getReview);
-    // }
+  Future removeReview(String reviewId, String hotelId) async {
+    final url = Uri.parse(
+        'https://book-a-stay-app-default-rtdb.firebaseio.com/hotels/$hotelId/reviews/$reviewId.json?auth=$authToken');
+    final existingReviewIndex =
+        _reviews.indexWhere((review) => review.id == reviewId);
+    var existingreview = _reviews[existingReviewIndex];
+    _reviews.removeAt(existingReviewIndex);
+    notifyListeners();
+    await Future.delayed(const Duration(seconds: 1));
+    final response = await http.delete(url);
+
+    if (response.statusCode >= 400) {
+      _reviews.insert(existingReviewIndex, existingreview);
+      notifyListeners();
+      throw HttpException("Could not delete review");
+    }
   }
 
   List<ReviewDetails> get reviews {
