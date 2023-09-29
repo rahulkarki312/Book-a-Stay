@@ -29,10 +29,11 @@ class MyApp extends StatelessWidget {
         providers: [
           ChangeNotifierProvider(create: (_) => Auth()),
           ChangeNotifierProxyProvider<Auth, Hotels>(
-              create: (_) => Hotels("", "", []),
+              create: (_) => Hotels("", "", "", []),
               update: (ctx, auth, previousHotels) => Hotels(
                   auth.token.toString(),
                   auth.userId.toString(),
+                  auth.username.toString(),
                   previousHotels == null ? [] : previousHotels.hotels)),
           ChangeNotifierProxyProvider<Auth, Orders>(
             create: (_) => Orders("", "", [], false),

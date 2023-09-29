@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../providers/hotel.dart';
 import '../providers/hotels.dart';
@@ -18,7 +19,7 @@ class BookingPage extends StatefulWidget {
 
 class _BookingPageState extends State<BookingPage> {
   String? hotelId;
-  bool _isLoading = false;
+  bool _isOrderLoading = false;
   bool _reviewFormIsLoading = false;
   final _reviewNode = FocusNode();
   final _ratingNode = FocusNode();
@@ -43,6 +44,59 @@ class _BookingPageState extends State<BookingPage> {
     super.didChangeDependencies();
   }
 
+  Future<void> _order() async {
+    Hotel hotel = Provider.of<Hotels>(context, listen: false).findById(hotelId);
+    DateTime checkInDay =
+        Provider.of<UserFilter>(context, listen: false).checkInDay;
+    DateTime checkOutDay =
+        Provider.of<UserFilter>(context, listen: false).checkOutDay;
+    int noOfDays = checkOutDay.difference(checkInDay).inDays;
+    int customerCount =
+        Provider.of<UserFilter>(context, listen: false).customerCount;
+    setState(() {
+      _isOrderLoading = true;
+    });
+
+    try {
+      await Provider.of<Orders>(context, listen: false)
+          .addOrder(Order(
+              id: "",
+              hotelId: hotelId!,
+              userId: Provider.of<Auth>(context, listen: false).userId!,
+              checkInDay: checkInDay,
+              checkOutDay: checkOutDay,
+              customerCount: customerCount,
+              price: noOfDays * hotel.price))
+          .then((_) {
+        setState(() => _isOrderLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          duration: const Duration(seconds: 5),
+          content: const Text(
+              "Hotel booked, happy stay ! You can see your orders in orders section in home page."),
+          action: SnackBarAction(
+            label: "ok",
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ));
+      });
+    } catch (error) {
+      await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+                title: Text("An error occured !"),
+                content: Text("Something went wrong!"),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        setState(() => _isOrderLoading = false);
+                        Navigator.of(ctx).pop();
+                      },
+                      child: Text("Okay"))
+                ],
+              ));
+    }
+  }
+
   Future<void> _saveForm() async {
     final isValid = _form.currentState!.validate();
     if (!isValid) {
@@ -55,9 +109,13 @@ class _BookingPageState extends State<BookingPage> {
     Provider.of<Hotels>(context, listen: false)
         .addReview(
             _reviewController.text, int.parse(_ratingController.text), hotelId!)
-        .then((value) => setState(() {
-              _reviewFormIsLoading = false;
-            }));
+        .then((value) {
+      setState(() {
+        _reviewFormIsLoading = false;
+      });
+      _reviewController.clear();
+      _ratingController.clear();
+    });
   }
 
   @override
@@ -81,7 +139,7 @@ class _BookingPageState extends State<BookingPage> {
           title: Text("Book ${hotel.title}"),
           actions: [
             TextButton(
-              child: Icon(
+              child: const Icon(
                 Icons.arrow_left_sharp,
                 color: Colors.white,
               ),
@@ -108,84 +166,72 @@ class _BookingPageState extends State<BookingPage> {
                     children: [
                       Text(
                         hotel.title,
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                       Row(
                         children: [
-                          Icon(
+                          const Icon(
                             Icons.people,
                             color: Colors.white,
                           ),
                           Text(
                             customerCount.toString(),
-                            style: TextStyle(color: Colors.white),
+                            style: const TextStyle(color: Colors.white),
                           )
                         ],
                       ),
                       Text("\$:  ${noOfDays * hotel.price}",
-                          style: TextStyle(color: Colors.white))
+                          style: const TextStyle(color: Colors.white))
                     ],
                   ),
                 )
               ],
             ),
-            _isLoading
-                ? CircularProgressIndicator()
+            _isOrderLoading
+                ? const Center(child: const CircularProgressIndicator())
                 : TextButton(
-                    onPressed: () async {
-                      print(
-                          " userId: ${Provider.of<Auth>(context, listen: false).userId!}, checkInDay: $checkInDay, checkOutDay: $checkOutDay, price: ${noOfDays * hotel.price}");
-                      setState(() {
-                        _isLoading = true;
-                      });
-
-                      try {
-                        await Provider.of<Orders>(context, listen: false)
-                            .addOrder(Order(
-                                id: "",
-                                hotelId: hotelId!,
-                                userId:
-                                    Provider.of<Auth>(context, listen: false)
-                                        .userId!,
-                                checkInDay: checkInDay,
-                                checkOutDay: checkOutDay,
-                                customerCount: customerCount,
-                                price: noOfDays * hotel.price))
-                            .then((_) {
-                          setState(() => _isLoading = false);
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            duration: Duration(seconds: 5),
+                    onPressed: () {
+                      showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('Confirm Booking'),
                             content: Text(
-                                "Hotel booked, happy stay ! You can see your orders in orders section in home page."),
-                            action: SnackBarAction(
-                              label: "ok",
-                              onPressed: () => Navigator.of(context).pop(),
+                              'Do you want to book an order at ${hotel.title}? \n Check In : ${DateFormat.yMMMEd().format(checkInDay)} \n Check Out: ${DateFormat.yMMMEd().format(checkOutDay)} \n people: $customerCount \n Total price: ${noOfDays * hotel.price} ',
                             ),
-                          ));
-                        });
-                      } catch (error) {
-                        await showDialog(
-                            context: context,
-                            builder: (ctx) => AlertDialog(
-                                  title: Text("An error occured !"),
-                                  content: Text("Something went wrong!"),
-                                  actions: [
-                                    TextButton(
-                                        onPressed: () {
-                                          setState(() => _isLoading = false);
-                                          Navigator.of(ctx).pop();
-                                        },
-                                        child: Text("Okay"))
-                                  ],
-                                ));
-                      }
+                            actions: <Widget>[
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  textStyle:
+                                      Theme.of(context).textTheme.labelLarge,
+                                ),
+                                child: const Text('Cancel'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  textStyle:
+                                      Theme.of(context).textTheme.labelLarge,
+                                ),
+                                child: const Text('Confirm'),
+                                onPressed: () {
+                                  _order();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
                     },
-                    child: Text(
+                    child: const Text(
                       "Book Now",
                       style: TextStyle(color: Colors.black),
                     )),
-            SizedBox(height: 20),
-            Text('Write a review'),
+            const SizedBox(height: 20),
+            const Text('Write a review'),
             Form(
                 key: _form,
                 child: Column(
@@ -193,7 +239,7 @@ class _BookingPageState extends State<BookingPage> {
                     TextFormField(
                       controller: _reviewController,
                       focusNode: _reviewNode,
-                      decoration: InputDecoration(labelText: 'Review'),
+                      decoration: const InputDecoration(labelText: 'Review'),
                       textInputAction: TextInputAction.next,
                       onFieldSubmitted: (_) {
                         FocusScope.of(context).requestFocus(_ratingNode);
@@ -208,7 +254,7 @@ class _BookingPageState extends State<BookingPage> {
                     TextFormField(
                       controller: _ratingController,
                       focusNode: _ratingNode,
-                      decoration: InputDecoration(labelText: 'rating'),
+                      decoration: const InputDecoration(labelText: 'rating'),
                       textInputAction: TextInputAction.next,
                       onFieldSubmitted: (_) {
                         FocusScope.of(context).requestFocus();
@@ -244,16 +290,26 @@ class _BookingPageState extends State<BookingPage> {
                     );
                   } else {
                     return Consumer<Hotels>(
-                      builder: (ctx, hotels, child) => ListView.builder(
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        padding: const EdgeInsets.all(10.0),
-                        itemCount: hotels.reviews.length,
-                        itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
-                          value: hotels.reviews[i],
-                          child: ReviewItem(hotelId!),
-                        ),
-                      ),
+                      builder: (ctx, hotels, child) => hotels.reviews.isEmpty
+                          ? const Card(
+                              child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Text("No Reviews Yet.."),
+                                    Icon(Icons.reviews_outlined)
+                                  ]),
+                            )
+                          : ListView.builder(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              padding: const EdgeInsets.all(10.0),
+                              itemCount: hotels.reviews.length,
+                              itemBuilder: (ctx, i) =>
+                                  ChangeNotifierProvider.value(
+                                value: hotels.reviews[i],
+                                child: ReviewItem(hotelId!),
+                              ),
+                            ),
                     );
                   }
                 }

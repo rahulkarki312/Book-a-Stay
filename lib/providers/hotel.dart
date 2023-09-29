@@ -39,7 +39,6 @@ class Hotel with ChangeNotifier {
         body: json.encode(
           isFavorite,
         ));
-
     notifyListeners();
   }
 }

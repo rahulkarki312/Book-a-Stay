@@ -24,28 +24,30 @@ class HotelsGrid extends StatelessWidget {
                 .where((hotel) => hotel.address == location)
                 .toList();
 
-    // final hotels = location == null
-    //     ? hotelsData.hotels
-    //     : hotelsData.hotels
-    //         .where((hotel) => hotel.address == location)
-    //         .toList();
-
-    // final hotels = hotelsData.hotels;
-    // final hotelsLength = hotels.length;
-    return GridView.builder(
+    return ListView.builder(
       physics: NeverScrollableScrollPhysics(),
       shrinkWrap: true,
-      padding: const EdgeInsets.all(10.0),
       itemCount: hotels.length,
       itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
         value: hotels[i],
         child: UserHotelItem(),
       ),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 1,
-        childAspectRatio: 2.0,
-        mainAxisSpacing: 10,
-      ),
     );
+
+    //return GridView.builder(
+    //     physics: NeverScrollableScrollPhysics(),
+    //     shrinkWrap: true,
+    //     padding: const EdgeInsets.all(10.0),
+    //     itemCount: hotels.length,
+    // itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
+    //   value: hotels[i],
+    //   child: UserHotelItem(),
+    // ),
+    //     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+    //       crossAxisCount: 1,
+    //       childAspectRatio: 2.0,
+    //       mainAxisSpacing: 10,
+    //     ),
+    //   );
   }
 }

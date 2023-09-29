@@ -15,6 +15,11 @@ class Auth with ChangeNotifier {
   Timer? _authTimer;
   String? _emailAddress;
   bool _isAdmin = false; // flag to indicate if the user is admin
+  String? _username;
+
+  String? get username {
+    return _username;
+  }
 
   bool get isAuth {
     return token != null;
@@ -45,7 +50,9 @@ class Auth with ChangeNotifier {
   }
 
   Future<void> _authenticate(String email, String password, String urlSegment,
-      {bool loginAsAdmin = false}) async {
+      {bool loginAsAdmin = false,
+      String firstname = "",
+      String lastname = ""}) async {
     // the url for requesting sign up / sign in is done using firebase's REST API,
     // which provides the endpoint to send the request (email ,
     //password and requestSecureToken) with the API key of a realtime database (here firebase itself)
@@ -72,7 +79,6 @@ class Auth with ChangeNotifier {
       }
       // if no error occurs / the user is authenticated
       _token = responseData['idToken'];
-      print("token: $_token ");
       _userId = responseData['localId'];
       _expiryDate = DateTime.now()
           .add(Duration(seconds: int.parse(responseData['expiresIn'])));
@@ -82,7 +88,36 @@ class Auth with ChangeNotifier {
         _isAdmin = true;
       }
 
-      // print(_expiryDate);
+      // if it is called through sign up, first post the user info in the server
+
+      if (urlSegment == "signUp") {
+        final url = Uri.parse(
+            "https://book-a-stay-app-default-rtdb.firebaseio.com/users.json?auth=$_token");
+        final response = await http.post(url,
+            body: json.encode({
+              'email': email,
+              'userId': _userId,
+              'firstname': firstname,
+              'lastname': lastname
+            }));
+        _username = '$firstname $lastname';
+      }
+
+      // If it is called through login, first fetch the user-info from the server to set the username
+
+      if (urlSegment == "signInWithPassword") {
+        print("Username from login: $_username");
+        final url = Uri.parse(
+            "https://book-a-stay-app-default-rtdb.firebaseio.com/users.json?auth=$_token");
+        final response = await http.get(url);
+        final users = json.decode(response.body);
+        users.forEach((key, value) {
+          if (value['userId'] == userId) {
+            _username = value['firstname']! + " " + value['lastname']!;
+          }
+        });
+      }
+
       _autoLogout();
       notifyListeners();
 
@@ -94,7 +129,8 @@ class Auth with ChangeNotifier {
         'userId': _userId,
         'expiryDate': _expiryDate!.toIso8601String(),
         'email': email,
-        'isAdmin': isAdmin
+        'isAdmin': isAdmin,
+        'username': _username
       });
       prefs.setString('userData', userData);
     } catch (error) {
@@ -102,15 +138,18 @@ class Auth with ChangeNotifier {
     }
   }
 
-  Future<void> signup(String email, String password) async {
-    return _authenticate(email, password, "signUp");
+  Future<void> signup(
+      String email, String password, String firstname, String lastname) async {
+    await _authenticate(email, password, "signUp",
+        firstname: firstname, lastname: lastname);
   }
 
   Future<void> login(String email, String password) async {
-    return _authenticate(email, password, "signInWithPassword");
+    await _authenticate(email, password, "signInWithPassword");
   }
 
   Future<void> loginAdmin(String email, String password) async {
+    _username = "admin";
     return _authenticate(email, password, "signInWithPassword",
         loginAsAdmin: true);
   }
@@ -118,17 +157,15 @@ class Auth with ChangeNotifier {
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('userData')) {
-      print("Not written yet");
+      // print("Not written yet");
       return false;
     }
 
     final extractedUserData =
         json.decode(prefs.getString('userData')!); //as Map<String, Object>
-    print("logged in user by auto login: " +
-        extractedUserData['email'] +
-        " isAdmin: " +
-        extractedUserData['isAdmin']
-            .toString()); //to check the user's stored info
+    print(
+        "logged in user by auto login: ${extractedUserData['email']} isAdmin: ${extractedUserData['isAdmin'].toString()}");
+    //to check the user's stored info
 
     final expiryDate =
         DateTime.parse(extractedUserData['expiryDate'].toString());
@@ -141,6 +178,7 @@ class Auth with ChangeNotifier {
     _userId = extractedUserData['userId'].toString();
     _expiryDate = expiryDate;
     _isAdmin = extractedUserData['isAdmin'];
+    _username = extractedUserData['username'];
 
     notifyListeners(); //this automatically rebuilds the home screen since the 'auth' provider's values has been changed/set
     _autoLogout();
@@ -152,6 +190,7 @@ class Auth with ChangeNotifier {
     _userId = null;
     _expiryDate = null;
     _isAdmin = false;
+    _username = "";
     if (_authTimer != null) {
       _authTimer!.cancel();
       _authTimer = null;

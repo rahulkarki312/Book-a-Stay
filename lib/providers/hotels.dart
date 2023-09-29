@@ -14,8 +14,9 @@ class Hotels with ChangeNotifier {
 
   final String authToken;
   final String userId;
+  final String username;
 
-  Hotels(this.authToken, this.userId, this._hotels);
+  Hotels(this.authToken, this.userId, this.username, this._hotels);
 
   List<Hotel> get hotels {
     return [..._hotels];
@@ -53,7 +54,15 @@ class Hotels with ChangeNotifier {
       final favoriteData = json.decode(favoriteResponse.body);
 
       final List<Hotel> LoadedHotels = [];
-      extractedData.forEach((hotelId, hotelData) {
+      extractedData.forEach((hotelId, hotelData) async {
+        // fetch reviews
+        // final reviewsUrl = Uri.parse(
+        //     "https://book-a-stay-app-default-rtdb.firebaseio.com/hotels/$hotelId/reviews.json?auth=$authToken");
+        // List<ReviewDetails> loadedReviews = [];
+
+        // final reviewResponse = await http.get(reviewsUrl);
+        // print("$hotelId: ${json.decode(reviewResponse.body)}\n\n");
+
         LoadedHotels.add(Hotel(
           id: hotelId,
           title: hotelData['title'],
@@ -71,6 +80,7 @@ class Hotels with ChangeNotifier {
           reviews: [],
         ));
       });
+
       _hotels = LoadedHotels;
       notifyListeners();
     } catch (error) {
@@ -151,6 +161,7 @@ class Hotels with ChangeNotifier {
         final response = await http.post(postUrl,
             body: json.encode({
               'userId': userId,
+              'username': username,
               'review': review,
               'rating': rating,
               'date': DateTime.now().toString()
@@ -158,6 +169,7 @@ class Hotels with ChangeNotifier {
         _reviews.add(ReviewDetails(
             id: json.decode(response.body)['name'],
             userId: userId,
+            username: username,
             review: review,
             rating: rating,
             date: DateTime.now()));
@@ -176,17 +188,26 @@ class Hotels with ChangeNotifier {
     List<ReviewDetails> loadedReviews = [];
     try {
       final response = await http.get(url);
+
+      if (response.body == 'null') {
+        // if the reviews do not exist for the current hotel
+        _reviews = [];
+        return;
+      }
+
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      // print(extractedData);
+
       extractedData.forEach((reviewId, review) {
         loadedReviews.add(ReviewDetails(
             id: reviewId,
             userId: review['userId'],
+            username: review['username'],
             review: review['review'],
             rating: int.parse(review['rating'].toString()),
             date: DateTime.parse(review['date'])));
       });
       _reviews = loadedReviews;
+      // print(_reviews);
       notifyListeners();
     } catch (error) {
       throw error;

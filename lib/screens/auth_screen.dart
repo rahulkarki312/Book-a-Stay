@@ -23,7 +23,7 @@ class AuthScreen extends StatelessWidget {
       body: Stack(
         children: <Widget>[
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
             ),
             // borderRadius: BorderRadius.circular(30)
@@ -41,15 +41,15 @@ class AuthScreen extends StatelessWidget {
                     fit: FlexFit.tight,
                     child: Container(
                       height: MediaQuery.of(context).size.height * 0.10,
-                      margin:
-                          EdgeInsets.symmetric(vertical: 30.0, horizontal: 70),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 2.0, horizontal: 14.0),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 30.0, horizontal: 70),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 2.0, horizontal: 14.0),
                       decoration: BoxDecoration(
                         border: Border.all(width: 3, color: Colors.black),
                         borderRadius: BorderRadius.circular(50),
                         color: Theme.of(context).primaryColor,
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             blurRadius: 6,
                             color: Colors.black26,
@@ -57,7 +57,7 @@ class AuthScreen extends StatelessWidget {
                           )
                         ],
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           'Book a stay',
                           style: TextStyle(
@@ -100,6 +100,8 @@ class _AuthCardState extends State<AuthCard>
   Map<String, String> _authData = {
     'email': '',
     'password': '',
+    'firstname': '',
+    'lastname': '',
   };
 
   var _isLoading = false;
@@ -110,11 +112,10 @@ class _AuthCardState extends State<AuthCard>
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _controller = AnimationController(
         vsync: this,
-        duration: Duration(
+        duration: const Duration(
           milliseconds: 400,
         ));
     _heightAnimation = Tween<Size>(
@@ -167,8 +168,11 @@ class _AuthCardState extends State<AuthCard>
         await Provider.of<Auth>(context, listen: false)
             .login(_authData['email']!, _authData['password']!);
       } else {
-        await Provider.of<Auth>(context, listen: false)
-            .signup(_authData['email']!, _authData['password']!);
+        await Provider.of<Auth>(context, listen: false).signup(
+            _authData['email']!,
+            _authData['password']!,
+            _authData['firstname']!,
+            _authData['lastname']!);
       }
     } on HttpException catch (error) {
       var errorMessage = "Authentication failed";
@@ -186,9 +190,9 @@ class _AuthCardState extends State<AuthCard>
       _showErrorDialog(errorMessage);
       setState(() => _isLoading = false);
     } catch (error) {
-      const errorMessage =
-          "Could not authenticate you, please try again later.";
-      _showErrorDialog(errorMessage);
+      var errorMessage = error;
+      // "Could not authenticate you, please try again later.";
+      _showErrorDialog("error from outside " + errorMessage.toString());
       setState(() => _isLoading = false);
     }
 
@@ -227,7 +231,7 @@ class _AuthCardState extends State<AuthCard>
 
       // the AnimatedContainer can do the same thing and it automatically animates/transitions when the size/dimension changes abruptly
       child: AnimatedContainer(
-        height: _authMode == AuthMode.Signup ? 320 : 260,
+        height: _authMode == AuthMode.Signup ? 420 : 260,
 
         // height: _heightAnimation.value.height,
         curve: Curves.easeIn,
@@ -251,7 +255,6 @@ class _AuthCardState extends State<AuthCard>
                       return 'Invalid email!';
                     }
                     return null;
-                    return null;
                   },
                   onSaved: (value) {
                     _authData['email'] = value as String;
@@ -272,52 +275,84 @@ class _AuthCardState extends State<AuthCard>
                 ),
                 AnimatedContainer(
                   constraints: BoxConstraints(
-                    minHeight: _authMode == AuthMode.Signup ? 60 : 0,
-                    maxHeight: _authMode == AuthMode.Signup ? 120 : 0,
+                    minHeight: _authMode == AuthMode.Signup ? 80 : 0,
+                    maxHeight: _authMode == AuthMode.Signup ? 220 : 0,
                   ),
-                  duration: Duration(milliseconds: 400),
+                  duration: const Duration(milliseconds: 400),
                   child: FadeTransition(
                     opacity: _opacityAnimation,
-                    child: TextFormField(
-                      enabled: _authMode == AuthMode.Signup,
-                      decoration:
-                          InputDecoration(labelText: 'Confirm Password'),
-                      obscureText: true,
-                      validator: _authMode == AuthMode.Signup
-                          ? (value) {
-                              if (value != _passwordController.text) {
-                                return 'Passwords do not match!';
-                              }
-                            }
-                          : null,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          enabled: _authMode == AuthMode.Signup,
+                          decoration: const InputDecoration(
+                              labelText: 'Confirm Password'),
+                          obscureText: true,
+                          validator: _authMode == AuthMode.Signup
+                              ? (value) {
+                                  if (value != _passwordController.text) {
+                                    return 'Passwords do not match!';
+                                  }
+                                }
+                              : null,
+                        ),
+                        TextFormField(
+                          enabled: _authMode == AuthMode.Signup,
+                          decoration:
+                              const InputDecoration(labelText: 'First Name'),
+                          validator: _authMode == AuthMode.Signup
+                              ? (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Please Enter Your First Name!';
+                                  }
+                                }
+                              : null,
+                          onSaved: (value) {
+                            _authData['firstname'] = value as String;
+                          },
+                        ),
+                        TextFormField(
+                          enabled: _authMode == AuthMode.Signup,
+                          decoration:
+                              const InputDecoration(labelText: 'Last Name'),
+                          validator: _authMode == AuthMode.Signup
+                              ? (value) {
+                                  if (value!.isEmpty) {
+                                    return 'Please Enter Your Last Name!';
+                                  }
+                                }
+                              : null,
+                          onSaved: (value) {
+                            _authData['lastname'] = value as String;
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 20,
+                const SizedBox(
+                  height: 10,
                 ),
                 if (_isLoading)
-                  CircularProgressIndicator()
+                  const CircularProgressIndicator()
                 else
                   ElevatedButton(
+                    onPressed: _submit,
                     child:
                         Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
-                    onPressed: _submit,
                   ),
                 TextButton(
+                  onPressed: _switchAuthMode,
                   child: Text(
                       '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
-                  onPressed: _switchAuthMode,
-                  // padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 4),
-                  // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  // textColor: Theme.of(context).colorScheme.secondary,
                 ),
-                TextButton(
-                  child: Text("Log in as Admin"),
-                  onPressed: () {
-                    _submit(loginAsAdmin: true);
-                  },
-                )
+                if (_authMode == AuthMode.Login)
+                  TextButton(
+                    onPressed: () {
+                      _submit(loginAsAdmin: true);
+                    },
+                    child: const Text("LOG IN AS ADMIN"),
+                  )
               ],
             ),
           ),

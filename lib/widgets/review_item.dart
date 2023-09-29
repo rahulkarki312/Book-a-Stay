@@ -20,18 +20,19 @@ class ReviewItem extends StatelessWidget {
     return Card(
       margin: EdgeInsets.all(10),
       child: ListTile(
-          title: Text('review: ${review.review}'),
-          subtitle: Text(review.userId),
-          trailing: Column(
-            children: [
-              Text(DateFormat.yMd().format(review.date)),
-              if (currentUser == reviewByUser)
-                IconButton(
-                    onPressed: () => Provider.of<Hotels>(context, listen: false)
-                        .removeReview(review.id, hotelId),
-                    icon: const Icon(Icons.delete))
-            ],
-          )),
+          title: Text(
+              '${review.username}: ${review.review} \nrating: ${review.rating}'),
+          // subtitle: Text(review.userId),
+          subtitle: Text(DateFormat.yMd().format(review.date)),
+          trailing: currentUser == reviewByUser
+              ? IconButton(
+                  onPressed: () => Provider.of<Hotels>(context, listen: false)
+                      .removeReview(review.id, hotelId),
+                  icon: const Icon(Icons.delete))
+              : Container(
+                  width: 0,
+                  height: 0,
+                )),
     );
   }
 }

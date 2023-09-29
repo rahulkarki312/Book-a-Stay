@@ -8,7 +8,7 @@ import '../../providers/hotel.dart';
 class HotelItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final hotel = Provider.of<Hotel>(context, listen: false);
+    final hotel = Provider.of<Hotel>(context);
     // final authData = Provider.of<Auth>(context, listen: false);
     return GestureDetector(
       onTap: () {
