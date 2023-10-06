@@ -59,6 +59,11 @@ class MyApp extends StatelessWidget {
             //         colorScheme: ThemeData().colorScheme.copyWith(secondary: Colors.black, primary: Colors.white),
 
             // ),
+            theme: ThemeData(
+                primaryColor: Colors.white,
+                fontFamily: "Montserrat",
+                colorScheme:
+                    ColorScheme.fromSwatch().copyWith(secondary: Colors.black)),
 
             title: " ",
             home: auth.isAuth & !auth.isAdmin

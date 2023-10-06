@@ -22,15 +22,15 @@ class UserHotelItem extends StatelessWidget {
       onTap: () => Navigator.of(context)
           .pushNamed(BookingPage.routename, arguments: hotel.id),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
         child: AspectRatio(
-          aspectRatio: 16 / 9,
+          aspectRatio: 16 / 11,
           child: Stack(
             // alignment: Alignment.center,
             children: [
               _buildBackground(context, hotel.imageUrl),
-              _buildTitle(hotel.title, noOfDays * hotel.price),
               _buildGradient(),
+              _buildTitle(hotel.title, noOfDays * hotel.price),
               Positioned(
                   top: 10,
                   right: 5,
@@ -94,7 +94,7 @@ class UserHotelItem extends StatelessWidget {
             style: const TextStyle(
               color: Colors.white,
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w300,
             ),
           ),
           Text(

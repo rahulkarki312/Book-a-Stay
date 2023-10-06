@@ -63,21 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: UserHotelItem(), value: hotel)
                   // HotelsGrid(),
                 ],
-              )
-        //  SingleChildScrollView(
-        //     child: Column(
-        //       children: [
-        //         DateSelector(),
-        // for (final location in locationsList)
-        //   HotelListItem(
-        //     imageUrl: location.imageUrl,
-        //     name: location.name,
-        //     country: location.place,
-        //   ),
-        //       ],
-        //     ),
-        //   ),
-        );
+              ));
   }
 }
 

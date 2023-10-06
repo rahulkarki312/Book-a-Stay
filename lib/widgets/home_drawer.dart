@@ -8,6 +8,7 @@ class HomeDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      elevation: 5,
       child: ListView(children: [
         TextButton(
             onPressed: () =>
@@ -22,8 +23,16 @@ class HomeDrawer extends StatelessWidget {
             child: const Text(
               'Log out',
             )),
+        SizedBox(
+          height: MediaQuery.of(context).size.height,
+        ),
         Consumer<Auth>(
-          builder: (context, auth, child) => Text(auth.username!),
+          builder: (context, auth, child) => Row(
+            children: [
+              const Icon(Icons.person),
+              Text(auth.username!),
+            ],
+          ),
         )
       ]),
     );

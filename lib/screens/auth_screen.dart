@@ -25,7 +25,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   void initState() {
     _controller = VideoPlayerController.networkUrl(Uri.parse(
-        'https://media.istockphoto.com/id/1400158033/video/palm-trees-at-sunset-on-mirissa-sri-lanka.mp4?s=mp4-640x640-is&k=20&c=duK4UijOmTKGY5r5NYyAcRijdfpddyJV9zLWuwRcpYM='))
+        'https://media.istockphoto.com/id/966113438/video/coconut-palm-trees-crowns-against-blue-sunny-sky-perspective-view-from-the-ground.mp4?s=mp4-640x640-is&k=20&c=TTDqd3rWhgVcbAGzlT8PTTuEdOAHA8wgiEJJOykuvFg='))
       ..initialize().then((_) {
         _controller.play();
         _controller.setLooping(true);
@@ -38,7 +38,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    // _controller.dispose();
     super.dispose();
   }
 
@@ -48,7 +48,7 @@ class _AuthScreenState extends State<AuthScreen> {
     // final transformConfig = Matrix4.rotationZ(-8 * pi / 180);
     // transformConfig.translate(-10.0);
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: <Widget>[
           SizedBox.expand(
@@ -102,7 +102,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -114,6 +114,16 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
           ),
+          const Positioned(
+              left: 10,
+              bottom: 35,
+              child: Text(
+                "Book Your Dream Hotel At Best Price",
+                style: TextStyle(
+                    fontWeight: FontWeight.w300,
+                    color: Colors.white,
+                    fontSize: 18),
+              )),
         ],
       ),
     );
@@ -278,6 +288,7 @@ class _AuthCardState extends State<AuthCard>
             child: Column(
               children: <Widget>[
                 TextFormField(
+                  style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                     labelText: 'E-Mail',
                     labelStyle: TextStyle(color: Colors.white),
@@ -297,6 +308,7 @@ class _AuthCardState extends State<AuthCard>
                   },
                 ),
                 TextFormField(
+                  style: const TextStyle(color: Colors.white),
                   decoration: const InputDecoration(
                       labelText: 'Password',
                       labelStyle: TextStyle(color: Colors.white),
@@ -324,6 +336,7 @@ class _AuthCardState extends State<AuthCard>
                     child: Column(
                       children: [
                         TextFormField(
+                          style: const TextStyle(color: Colors.white),
                           enabled: _authMode == AuthMode.Signup,
                           decoration: const InputDecoration(
                               labelText: 'Confirm Password',
@@ -340,6 +353,7 @@ class _AuthCardState extends State<AuthCard>
                               : null,
                         ),
                         TextFormField(
+                          style: const TextStyle(color: Colors.white),
                           enabled: _authMode == AuthMode.Signup,
                           decoration: const InputDecoration(
                               labelText: 'First Name',
@@ -358,6 +372,7 @@ class _AuthCardState extends State<AuthCard>
                           },
                         ),
                         TextFormField(
+                          style: const TextStyle(color: Colors.white),
                           enabled: _authMode == AuthMode.Signup,
                           decoration: const InputDecoration(
                               labelText: 'Last Name',
