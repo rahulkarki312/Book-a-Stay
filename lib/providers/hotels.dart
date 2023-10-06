@@ -10,6 +10,7 @@ import './hotel.dart';
 
 class Hotels with ChangeNotifier {
   List<Hotel> _hotels = [];
+  // only the reviews of the current hotel (In hotel-details page)
   List<ReviewDetails> _reviews = [];
 
   final String authToken;
@@ -54,15 +55,8 @@ class Hotels with ChangeNotifier {
       final favoriteData = json.decode(favoriteResponse.body);
 
       final List<Hotel> LoadedHotels = [];
+
       extractedData.forEach((hotelId, hotelData) async {
-        // fetch reviews
-        // final reviewsUrl = Uri.parse(
-        //     "https://book-a-stay-app-default-rtdb.firebaseio.com/hotels/$hotelId/reviews.json?auth=$authToken");
-        // List<ReviewDetails> loadedReviews = [];
-
-        // final reviewResponse = await http.get(reviewsUrl);
-        // print("$hotelId: ${json.decode(reviewResponse.body)}\n\n");
-
         LoadedHotels.add(Hotel(
           id: hotelId,
           title: hotelData['title'],
@@ -81,7 +75,27 @@ class Hotels with ChangeNotifier {
         ));
       });
 
+      // fetch reviews for each hotel
+      LoadedHotels.forEach((hotel) async {
+        final reviewsUrl = Uri.parse(
+            "https://book-a-stay-app-default-rtdb.firebaseio.com/hotels/${hotel.id}/reviews.json?auth=$authToken");
+        List<ReviewDetails> loadedReviews = [];
+
+        final reviewResponse = await http.get(reviewsUrl);
+        // print("${hotel.id}: ${json.decode(reviewResponse.body)}\n\n");
+        final fetchedReviews = json.decode(reviewResponse.body);
+        fetchedReviews.forEach((reviewId, review) {
+          hotel.reviews.add(ReviewDetails(
+              id: reviewId,
+              userId: review['userId'],
+              username: review['username'],
+              review: review['review'],
+              rating: int.parse(review['rating'].toString()),
+              date: DateTime.parse(review['date'])));
+        });
+      });
       _hotels = LoadedHotels;
+      print(_hotels.length);
       notifyListeners();
     } catch (error) {
       throw (error);
@@ -103,6 +117,7 @@ class Hotels with ChangeNotifier {
           'creatorId': userId,
           'breakfastIncl': hotel.breakfastIncl,
           'discount': hotel.discount,
+          'reviews': null,
           'address': hotel.address
         }),
       );
@@ -152,7 +167,8 @@ class Hotels with ChangeNotifier {
 
   Future<void> addReview(String review, int rating, String hotelId) async {
     final hotelIndex = _hotels.indexWhere((hotel) => hotel.id == hotelId);
-    final selectedHotel = _hotels[hotelIndex];
+    // final selectedHotel = _hotels[hotelIndex];
+    final selectedHotel = findById(hotelId);
     try {
       if (hotelIndex >= 0) {
         final postUrl = Uri.parse(
@@ -166,13 +182,20 @@ class Hotels with ChangeNotifier {
               'rating': rating,
               'date': DateTime.now().toString()
             }));
-        _reviews.add(ReviewDetails(
+        selectedHotel.reviews.add(ReviewDetails(
             id: json.decode(response.body)['name'],
             userId: userId,
             username: username,
             review: review,
             rating: rating,
             date: DateTime.now()));
+        // _reviews.add(ReviewDetails(
+        //     id: json.decode(response.body)['name'],
+        //     userId: userId,
+        //     username: username,
+        //     review: review,
+        //     rating: rating,
+        //     date: DateTime.now()));
         notifyListeners();
       } else {
         print('...');
@@ -182,51 +205,22 @@ class Hotels with ChangeNotifier {
     }
   }
 
-  Future<void> fetchAndSetReviews(String hotelId) async {
-    final url = Uri.parse(
-        "https://book-a-stay-app-default-rtdb.firebaseio.com/hotels/$hotelId/reviews.json?auth=$authToken");
-    List<ReviewDetails> loadedReviews = [];
-    try {
-      final response = await http.get(url);
-
-      if (response.body == 'null') {
-        // if the reviews do not exist for the current hotel
-        _reviews = [];
-        return;
-      }
-
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
-
-      extractedData.forEach((reviewId, review) {
-        loadedReviews.add(ReviewDetails(
-            id: reviewId,
-            userId: review['userId'],
-            username: review['username'],
-            review: review['review'],
-            rating: int.parse(review['rating'].toString()),
-            date: DateTime.parse(review['date'])));
-      });
-      _reviews = loadedReviews;
-      // print(_reviews);
-      notifyListeners();
-    } catch (error) {
-      throw error;
-    }
-  }
-
   Future removeReview(String reviewId, String hotelId) async {
+    // final hotelIndex = _hotels.indexWhere((hotel) => hotel.id == hotelId);
+    final hotel = findById(hotelId);
     final url = Uri.parse(
         'https://book-a-stay-app-default-rtdb.firebaseio.com/hotels/$hotelId/reviews/$reviewId.json?auth=$authToken');
     final existingReviewIndex =
-        _reviews.indexWhere((review) => review.id == reviewId);
-    var existingreview = _reviews[existingReviewIndex];
-    _reviews.removeAt(existingReviewIndex);
+        hotel.reviews.indexWhere((review) => review.id == reviewId);
+    var existingreview = hotel.reviews[existingReviewIndex];
+    // _reviews.removeAt()
+    hotel.reviews.removeAt(existingReviewIndex);
     notifyListeners();
     await Future.delayed(const Duration(seconds: 1));
     final response = await http.delete(url);
 
     if (response.statusCode >= 400) {
-      _reviews.insert(existingReviewIndex, existingreview);
+      hotel.reviews.insert(existingReviewIndex, existingreview);
       notifyListeners();
       throw HttpException("Could not delete review");
     }

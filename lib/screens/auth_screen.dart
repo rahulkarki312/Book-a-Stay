@@ -7,11 +7,40 @@ import 'package:provider/provider.dart';
 
 import '../providers/auth.dart';
 import '../models/http_exceptions.dart';
+import 'package:video_player/video_player.dart';
+import 'package:blur/blur.dart';
 
 enum AuthMode { Signup, Login }
 
-class AuthScreen extends StatelessWidget {
+class AuthScreen extends StatefulWidget {
   static const routeName = '/auth';
+
+  @override
+  State<AuthScreen> createState() => _AuthScreenState();
+}
+
+class _AuthScreenState extends State<AuthScreen> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    _controller = VideoPlayerController.networkUrl(Uri.parse(
+        'https://media.istockphoto.com/id/1400158033/video/palm-trees-at-sunset-on-mirissa-sri-lanka.mp4?s=mp4-640x640-is&k=20&c=duK4UijOmTKGY5r5NYyAcRijdfpddyJV9zLWuwRcpYM='))
+      ..initialize().then((_) {
+        _controller.play();
+        _controller.setLooping(true);
+        _controller.setVolume(0);
+        //Ensure the first frame is shown after the value is initialized
+        setState(() {});
+      });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +51,22 @@ class AuthScreen extends StatelessWidget {
       // resizeToAvoidBottomInset: false,
       body: Stack(
         children: <Widget>[
-          Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
+          SizedBox.expand(
+            child: FittedBox(
+              fit: BoxFit.cover,
+              alignment: Alignment.centerLeft,
+              child: SizedBox(
+                width: _controller.value.size.width ?? 0,
+                height: _controller.value.size.height ?? 0,
+                child: VideoPlayer(_controller),
+              ),
             ),
-            // borderRadius: BorderRadius.circular(30)
           ),
+          // Container(
+          //   decoration: const BoxDecoration(
+          //     color: Colors.white,
+          //   ),
+          // ),
           SingleChildScrollView(
             child: Container(
               height: deviceSize.height,
@@ -46,9 +85,9 @@ class AuthScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           vertical: 2.0, horizontal: 14.0),
                       decoration: BoxDecoration(
-                        border: Border.all(width: 3, color: Colors.black),
+                        border: Border.all(width: 3, color: Colors.white),
                         borderRadius: BorderRadius.circular(50),
-                        color: Theme.of(context).primaryColor,
+                        color: Colors.transparent,
                         boxShadow: const [
                           BoxShadow(
                             blurRadius: 6,
@@ -61,7 +100,7 @@ class AuthScreen extends StatelessWidget {
                         child: Text(
                           'Book a stay',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.white,
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                           ),
@@ -70,9 +109,7 @@ class AuthScreen extends StatelessWidget {
                     ),
                   ),
                   Flexible(
-                    flex: deviceSize.width > 600 ? 2 : 1,
-                    child: AuthCard(),
-                  ),
+                      flex: deviceSize.width > 600 ? 2 : 1, child: AuthCard()),
                 ],
               ),
             ),
@@ -190,9 +227,10 @@ class _AuthCardState extends State<AuthCard>
       _showErrorDialog(errorMessage);
       setState(() => _isLoading = false);
     } catch (error) {
-      var errorMessage = error;
+      // var errorMessage = error;
       // "Could not authenticate you, please try again later.";
-      _showErrorDialog("error from outside " + errorMessage.toString());
+      _showErrorDialog(
+          "Could not authenticate you, please try again later (Check your Internet Connection)");
       setState(() => _isLoading = false);
     }
 
@@ -219,21 +257,13 @@ class _AuthCardState extends State<AuthCard>
   Widget build(BuildContext context) {
     final deviceSize = MediaQuery.of(context).size;
     return Card(
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
       elevation: 8.0,
-      // child: AnimatedBuilder(
-      //   animation: _heightAnimation,
-      //   // The child ch here (which is form,  AnimatedBuilder's child argument), inside the container does not animate/rebuild once the animation starts
-      //   // the child ch is passed automatically
-      //   builder: (ctx, ch) =>
-
-      // the AnimatedContainer can do the same thing and it automatically animates/transitions when the size/dimension changes abruptly
       child: AnimatedContainer(
         height: _authMode == AuthMode.Signup ? 420 : 260,
-
-        // height: _heightAnimation.value.height,
         curve: Curves.easeIn,
         duration: Duration(milliseconds: 300),
         // constraints: BoxConstraints(minHeight: _heightAnimation.value.height),
@@ -248,7 +278,13 @@ class _AuthCardState extends State<AuthCard>
             child: Column(
               children: <Widget>[
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'E-Mail'),
+                  decoration: const InputDecoration(
+                    labelText: 'E-Mail',
+                    labelStyle: TextStyle(color: Colors.white),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                    ),
+                  ),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value!.isEmpty || !value.contains('@')) {
@@ -261,7 +297,11 @@ class _AuthCardState extends State<AuthCard>
                   },
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Password'),
+                  decoration: const InputDecoration(
+                      labelText: 'Password',
+                      labelStyle: TextStyle(color: Colors.white),
+                      enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white))),
                   obscureText: true,
                   controller: _passwordController,
                   validator: (value) {
@@ -286,7 +326,10 @@ class _AuthCardState extends State<AuthCard>
                         TextFormField(
                           enabled: _authMode == AuthMode.Signup,
                           decoration: const InputDecoration(
-                              labelText: 'Confirm Password'),
+                              labelText: 'Confirm Password',
+                              labelStyle: TextStyle(color: Colors.white),
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white))),
                           obscureText: true,
                           validator: _authMode == AuthMode.Signup
                               ? (value) {
@@ -298,8 +341,11 @@ class _AuthCardState extends State<AuthCard>
                         ),
                         TextFormField(
                           enabled: _authMode == AuthMode.Signup,
-                          decoration:
-                              const InputDecoration(labelText: 'First Name'),
+                          decoration: const InputDecoration(
+                              labelText: 'First Name',
+                              labelStyle: TextStyle(color: Colors.white),
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white))),
                           validator: _authMode == AuthMode.Signup
                               ? (value) {
                                   if (value!.isEmpty) {
@@ -313,8 +359,11 @@ class _AuthCardState extends State<AuthCard>
                         ),
                         TextFormField(
                           enabled: _authMode == AuthMode.Signup,
-                          decoration:
-                              const InputDecoration(labelText: 'Last Name'),
+                          decoration: const InputDecoration(
+                              labelText: 'Last Name',
+                              labelStyle: TextStyle(color: Colors.white),
+                              enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.white))),
                           validator: _authMode == AuthMode.Signup
                               ? (value) {
                                   if (value!.isEmpty) {
@@ -357,7 +406,11 @@ class _AuthCardState extends State<AuthCard>
             ),
           ),
         ),
-      ),
+      ).frosted(
+          blur: 1,
+          borderRadius: BorderRadius.circular(10),
+          frostColor: Colors.transparent,
+          padding: EdgeInsets.all(0)),
     );
   }
 }

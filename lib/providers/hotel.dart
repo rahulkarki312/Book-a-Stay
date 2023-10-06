@@ -41,4 +41,16 @@ class Hotel with ChangeNotifier {
         ));
     notifyListeners();
   }
+
+  int get reviewsCount {
+    return reviews.length;
+  }
+
+  double get avgRating {
+    int sum = 0;
+    reviews.forEach((review) {
+      sum += review.rating;
+    });
+    return sum / reviewsCount;
+  }
 }

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../screens/admin/edit_hotels_screen.dart';
 import '../../providers/hotel.dart';
-// import '../../providers/auth.dart';
+
 
 class HotelItem extends StatelessWidget {
   @override

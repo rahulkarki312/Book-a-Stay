@@ -23,10 +23,7 @@ class HomeDrawer extends StatelessWidget {
               'Log out',
             )),
         Consumer<Auth>(
-          builder: (context, auth, child) => Positioned(
-            child: Text(auth.username!),
-            bottom: 20,
-          ),
+          builder: (context, auth, child) => Text(auth.username!),
         )
       ]),
     );

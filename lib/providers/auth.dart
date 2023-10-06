@@ -106,7 +106,6 @@ class Auth with ChangeNotifier {
       // If it is called through login, first fetch the user-info from the server to set the username
 
       if (urlSegment == "signInWithPassword") {
-        print("Username from login: $_username");
         final url = Uri.parse(
             "https://book-a-stay-app-default-rtdb.firebaseio.com/users.json?auth=$_token");
         final response = await http.get(url);
@@ -190,7 +189,7 @@ class Auth with ChangeNotifier {
     _userId = null;
     _expiryDate = null;
     _isAdmin = false;
-    _username = "";
+    _username = null;
     if (_authTimer != null) {
       _authTimer!.cancel();
       _authTimer = null;

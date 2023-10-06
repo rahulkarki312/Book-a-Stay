@@ -35,7 +35,7 @@ class _BookingPageState extends State<BookingPage> {
   @override
   void didChangeDependencies() {
     var routedHotelId = ModalRoute.of(context)!.settings.arguments.toString();
-    if (routedHotelId != null) {
+    if (routedHotelId != "null") {
       hotelId = routedHotelId;
     } else {
       Navigator.of(context).pop();
@@ -120,11 +120,7 @@ class _BookingPageState extends State<BookingPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (hotelId == null) {
-      Navigator.of(context).pop();
-    }
-
-    Hotel hotel = Provider.of<Hotels>(context, listen: false).findById(hotelId);
+    Hotel hotel = Provider.of<Hotels>(context).findById(hotelId);
     DateTime checkInDay =
         Provider.of<UserFilter>(context, listen: false).checkInDay;
     DateTime checkOutDay =
@@ -168,6 +164,7 @@ class _BookingPageState extends State<BookingPage> {
                         hotel.title,
                         style: const TextStyle(color: Colors.white),
                       ),
+                      Text("Rating: ${hotel.avgRating}"),
                       Row(
                         children: [
                           const Icon(
@@ -272,48 +269,17 @@ class _BookingPageState extends State<BookingPage> {
                             onPressed: _saveForm, child: const Text("submit"))
                   ],
                 )),
-
+            Text("${hotel.reviewsCount} reviews"),
             // hotel reviews section
-            FutureBuilder(
-              future: Provider.of<Hotels>(context, listen: false)
-                  .fetchAndSetReviews(hotelId!),
-              builder: (ctx, dataSnapshot) {
-                if (dataSnapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else {
-                  if (dataSnapshot.error != null) {
-                    print(
-                        'orders_screen :An error occurred! ${dataSnapshot.error.toString()}');
-                    // Do error handling stuff
-                    return const Center(
-                      child: Text('An error occurred!'),
-                    );
-                  } else {
-                    return Consumer<Hotels>(
-                      builder: (ctx, hotels, child) => hotels.reviews.isEmpty
-                          ? const Card(
-                              child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Text("No Reviews Yet.."),
-                                    Icon(Icons.reviews_outlined)
-                                  ]),
-                            )
-                          : ListView.builder(
-                              physics: const NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              padding: const EdgeInsets.all(10.0),
-                              itemCount: hotels.reviews.length,
-                              itemBuilder: (ctx, i) =>
-                                  ChangeNotifierProvider.value(
-                                value: hotels.reviews[i],
-                                child: ReviewItem(hotelId!),
-                              ),
-                            ),
-                    );
-                  }
-                }
-              },
+            ListView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              padding: const EdgeInsets.all(10.0),
+              itemCount: hotel.reviews.length,
+              itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
+                value: hotel.reviews[i],
+                child: ReviewItem(hotelId!),
+              ),
             ),
           ],
         ));

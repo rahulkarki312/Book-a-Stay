@@ -14,7 +14,7 @@ class ReviewItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ReviewDetails review = Provider.of<ReviewDetails>(context, listen: false);
+    ReviewDetails review = Provider.of<ReviewDetails>(context);
     final currentUser = Provider.of<Auth>(context).userId;
     final reviewByUser = review.userId;
     return Card(
