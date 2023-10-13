@@ -16,14 +16,12 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   @override
   void initState() {
+    super.initState();
     setState(() => _isLoading = true);
 
-    Provider.of<Hotels>(context, listen: false).fetchAndSetHotels().then((_) {
-      print("Hotels fetched and set");
-      setState(() => _isLoading = false);
-    });
-    // print("Hotels fetched and set");
-    super.initState();
+    // Provider.of<Hotels>(context, listen: false).fetchAndSetHotels().then((_) {
+    //   setState(() => _isLoading = false);
+    // });
   }
 
   @override

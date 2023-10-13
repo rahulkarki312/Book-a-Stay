@@ -24,6 +24,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   void initState() {
+    super.initState();
     _controller = VideoPlayerController.networkUrl(Uri.parse(
         'https://media.istockphoto.com/id/966113438/video/coconut-palm-trees-crowns-against-blue-sunny-sky-perspective-view-from-the-ground.mp4?s=mp4-640x640-is&k=20&c=TTDqd3rWhgVcbAGzlT8PTTuEdOAHA8wgiEJJOykuvFg='))
       ..initialize().then((_) {
@@ -33,12 +34,11 @@ class _AuthScreenState extends State<AuthScreen> {
         //Ensure the first frame is shown after the value is initialized
         setState(() {});
       });
-    super.initState();
   }
 
   @override
   void dispose() {
-    // _controller.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -141,10 +141,10 @@ class AuthCard extends StatefulWidget {
 
 class _AuthCardState extends State<AuthCard>
     with SingleTickerProviderStateMixin {
-  final GlobalKey<FormState> _formKey = GlobalKey();
+  final GlobalKey<FormState> _authFormKey = GlobalKey();
   AuthMode _authMode = AuthMode.Login;
 
-  Map<String, String> _authData = {
+  final Map<String, String> _authData = {
     'email': '',
     'password': '',
     'firstname': '',
@@ -175,12 +175,12 @@ class _AuthCardState extends State<AuthCard>
     // _heightAnimation.addListener(() => setState(() {}));
   }
 
-  // @override
-  // void dispose() {
-  //   // TODO: implement dispose
-  //   super.dispose();
-  //   _controller.dispose();
-  // }
+  @override
+  void dispose() {
+    _controller.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -198,11 +198,11 @@ class _AuthCardState extends State<AuthCard>
   }
 
   Future<void> _submit({loginAsAdmin = false}) async {
-    if (!_formKey.currentState!.validate()) {
+    if (!_authFormKey.currentState!.validate()) {
       // Invalid!
       return;
     }
-    _formKey.currentState!.save();
+    _authFormKey.currentState!.save();
     setState(() {
       _isLoading = true;
     });
@@ -283,7 +283,7 @@ class _AuthCardState extends State<AuthCard>
         width: deviceSize.width * 0.75,
         padding: EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
+          key: _authFormKey,
           child: SingleChildScrollView(
             child: Column(
               children: <Widget>[

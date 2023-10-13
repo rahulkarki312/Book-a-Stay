@@ -47,7 +47,7 @@ class Hotel with ChangeNotifier {
   }
 
   double get avgRating {
-    int sum = 0;
+    double sum = 0;
     reviews.forEach((review) {
       sum += review.rating;
     });

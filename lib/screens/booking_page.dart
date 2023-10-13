@@ -9,7 +9,9 @@ import '../providers/order.dart';
 import '../providers/auth.dart';
 import '../widgets/home_drawer.dart';
 import '../widgets/review_item.dart';
-import '../providers/userReview.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import '../widgets/date_selector.dart';
+import 'add_review_screen.dart';
 
 class BookingPage extends StatefulWidget {
   static const routename = '/booking-page';
@@ -20,12 +22,6 @@ class BookingPage extends StatefulWidget {
 class _BookingPageState extends State<BookingPage> {
   String? hotelId;
   bool _isOrderLoading = false;
-  bool _reviewFormIsLoading = false;
-  final _reviewNode = FocusNode();
-  final _ratingNode = FocusNode();
-  final _form = GlobalKey<FormState>();
-  final _reviewController = TextEditingController();
-  final _ratingController = TextEditingController();
 
   @override
   void initState() {
@@ -46,13 +42,10 @@ class _BookingPageState extends State<BookingPage> {
 
   Future<void> _order() async {
     Hotel hotel = Provider.of<Hotels>(context, listen: false).findById(hotelId);
-    DateTime checkInDay =
-        Provider.of<UserFilter>(context, listen: false).checkInDay;
-    DateTime checkOutDay =
-        Provider.of<UserFilter>(context, listen: false).checkOutDay;
+    DateTime checkInDay = Provider.of<UserFilter>(context).checkInDay;
+    DateTime checkOutDay = Provider.of<UserFilter>(context).checkOutDay;
     int noOfDays = checkOutDay.difference(checkInDay).inDays;
-    int customerCount =
-        Provider.of<UserFilter>(context, listen: false).customerCount;
+    int customerCount = Provider.of<UserFilter>(context).customerCount;
     setState(() {
       _isOrderLoading = true;
     });
@@ -97,27 +90,6 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
-  Future<void> _saveForm() async {
-    final isValid = _form.currentState!.validate();
-    if (!isValid) {
-      return;
-    }
-    _form.currentState!.save();
-    setState(() {
-      _reviewFormIsLoading = true;
-    });
-    Provider.of<Hotels>(context, listen: false)
-        .addReview(
-            _reviewController.text, int.parse(_ratingController.text), hotelId!)
-        .then((value) {
-      setState(() {
-        _reviewFormIsLoading = false;
-      });
-      _reviewController.clear();
-      _ratingController.clear();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     Hotel hotel = Provider.of<Hotels>(context).findById(hotelId);
@@ -146,130 +118,188 @@ class _BookingPageState extends State<BookingPage> {
         drawer: HomeDrawer(),
         body: ListView(
           children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                    // height: MediaQuery.of(context).size.height,
-                    // width: MediaQuery.of(context).size.width,
-                    child: Image.network(
+            // Image
+            Container(
+                height: MediaQuery.of(context).size.height * 0.35,
+                width: MediaQuery.of(context).size.width,
+                child: Image.network(
                   hotel.imageUrl,
                   fit: BoxFit.cover,
                 )),
-                Positioned(
-                  bottom: 20,
-                  child: Column(
+
+            // hotel description
+            Container(
+              margin: const EdgeInsets.all(10),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (hotel.avgRating > 4)
+                    Container(
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(50),
+                        border: Border.all(color: Colors.black),
+                      ),
+                      child: const Text(
+                        "TOP RATED",
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
+                  Text(
+                    hotel.title,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  Row(
                     children: [
+                      RatingBarIndicator(
+                        rating: hotel.avgRating,
+                        itemBuilder: (context, index) => const Icon(
+                          Icons.circle,
+                          color: Colors.amber,
+                        ),
+                        itemCount: 5,
+                        itemSize: 20.0,
+                        direction: Axis.horizontal,
+                      ),
                       Text(
-                        hotel.title,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                      Text("Rating: ${hotel.avgRating}"),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.people,
-                            color: Colors.white,
-                          ),
-                          Text(
-                            customerCount.toString(),
-                            style: const TextStyle(color: Colors.white),
-                          )
-                        ],
-                      ),
-                      Text("\$:  ${noOfDays * hotel.price}",
-                          style: const TextStyle(color: Colors.white))
+                        "   ${hotel.reviewsCount} reviews",
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      )
                     ],
                   ),
-                )
-              ],
-            ),
-            _isOrderLoading
-                ? const Center(child: const CircularProgressIndicator())
-                : TextButton(
-                    onPressed: () {
-                      showDialog<void>(
+                  // about hotel section
+                  Container(
+                      margin: const EdgeInsets.only(top: 10, bottom: 2),
+                      child: Text(hotel.description)),
+                  // Booking info part
+                  GestureDetector(
+                    onTap: () => showModalBottomSheet(
+                        constraints:
+                            const BoxConstraints(minHeight: 65, maxHeight: 300),
                         context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: const Text('Confirm Booking'),
-                            content: Text(
-                              'Do you want to book an order at ${hotel.title}? \n Check In : ${DateFormat.yMMMEd().format(checkInDay)} \n Check Out: ${DateFormat.yMMMEd().format(checkOutDay)} \n people: $customerCount \n Total price: ${noOfDays * hotel.price} ',
+                        builder: (ctx) => Column(
+                              children: [
+                                const SizedBox(height: 15),
+                                const Text(
+                                  "Change Your Reservation Filter",
+                                  style: TextStyle(fontSize: 20),
+                                ),
+                                const SizedBox(height: 15),
+                                DateSelector(
+                                  showLocationFilter: false,
+                                ),
+                              ],
+                            )).then((_) => setState(() {})),
+                    child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 15),
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(color: Colors.black),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_month_outlined,
+                              size: 15,
                             ),
-                            actions: <Widget>[
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  textStyle:
-                                      Theme.of(context).textTheme.labelLarge,
-                                ),
-                                child: const Text('Cancel'),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
+                            Text(
+                              " ${DateFormat.MMMd().format(checkInDay)} -> ${DateFormat.MMMd().format(checkOutDay)}",
+                              style: const TextStyle(fontSize: 15),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.3,
+                            ),
+                            const Icon(
+                              Icons.people_outline,
+                              size: 15,
+                            ),
+                            Text(" $customerCount",
+                                style: const TextStyle(fontSize: 15))
+                          ],
+                        )),
+                  ),
+
+                  _isOrderLoading
+                      ? const Center(child: const CircularProgressIndicator())
+                      : Container(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              showDialog<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Confirm Booking'),
+                                    content: Text(
+                                      'Do you want to book an order at ${hotel.title}? \n Check In : ${DateFormat.yMMMEd().format(checkInDay)} \n Check Out: ${DateFormat.yMMMEd().format(checkOutDay)} \n people: $customerCount \n Total price: ${noOfDays * hotel.price} ',
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                          textStyle: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge,
+                                        ),
+                                        child: const Text('Cancel'),
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                      TextButton(
+                                        style: TextButton.styleFrom(
+                                          textStyle: Theme.of(context)
+                                              .textTheme
+                                              .labelLarge,
+                                        ),
+                                        child: const Text('Confirm'),
+                                        onPressed: () {
+                                          _order();
+                                          Navigator.of(context).pop();
+                                        },
+                                      ),
+                                    ],
+                                  );
                                 },
-                              ),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  textStyle:
-                                      Theme.of(context).textTheme.labelLarge,
-                                ),
-                                child: const Text('Confirm'),
-                                onPressed: () {
-                                  _order();
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    child: const Text(
-                      "Book Now",
-                      style: TextStyle(color: Colors.black),
-                    )),
-            const SizedBox(height: 20),
-            const Text('Write a review'),
-            Form(
-                key: _form,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _reviewController,
-                      focusNode: _reviewNode,
-                      decoration: const InputDecoration(labelText: 'Review'),
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) {
-                        FocusScope.of(context).requestFocus(_ratingNode);
-                      },
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Please enter a Review';
-                        }
-                        return null;
-                      },
-                    ),
-                    TextFormField(
-                      controller: _ratingController,
-                      focusNode: _ratingNode,
-                      decoration: const InputDecoration(labelText: 'rating'),
-                      textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (_) {
-                        FocusScope.of(context).requestFocus();
-                      },
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Please give some rating';
-                        }
-                        return null;
-                      },
-                    ),
-                    _reviewFormIsLoading
-                        ? const CircularProgressIndicator()
-                        : TextButton(
-                            onPressed: _saveForm, child: const Text("submit"))
-                  ],
-                )),
-            Text("${hotel.reviewsCount} reviews"),
+                              );
+                            },
+                            child: const Text(
+                              "Book Now",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                  Container(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                        style: const ButtonStyle(
+                            backgroundColor:
+                                MaterialStatePropertyAll(Colors.black)),
+                        child: const Text("Write a Review"),
+                        onPressed: () => Navigator.of(context).pushNamed(
+                            AddReviewScreen.routeName,
+                            arguments: hotelId)),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            Center(child: Text("${hotel.reviewsCount} reviews")),
             // hotel reviews section
             ListView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -278,7 +308,7 @@ class _BookingPageState extends State<BookingPage> {
               itemCount: hotel.reviews.length,
               itemBuilder: (ctx, i) => ChangeNotifierProvider.value(
                 value: hotel.reviews[i],
-                child: ReviewItem(hotelId!),
+                child: ReviewItem(hotelId: hotelId!),
               ),
             ),
           ],

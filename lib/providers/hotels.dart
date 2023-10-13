@@ -90,7 +90,7 @@ class Hotels with ChangeNotifier {
               userId: review['userId'],
               username: review['username'],
               review: review['review'],
-              rating: int.parse(review['rating'].toString()),
+              rating: double.parse(review['rating'].toString()),
               date: DateTime.parse(review['date'])));
         });
       });
@@ -165,7 +165,7 @@ class Hotels with ChangeNotifier {
     }
   }
 
-  Future<void> addReview(String review, int rating, String hotelId) async {
+  Future<void> addReview(String review, double rating, String hotelId) async {
     final hotelIndex = _hotels.indexWhere((hotel) => hotel.id == hotelId);
     // final selectedHotel = _hotels[hotelIndex];
     final selectedHotel = findById(hotelId);

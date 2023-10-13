@@ -5,6 +5,7 @@ import '../providers/userfilter.dart';
 import '../providers/auth.dart';
 import '../screens/booking_page.dart';
 import '../widgets/parallax_flow_delegate.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class UserHotelItem extends StatelessWidget {
   final GlobalKey _backgroundImageKey = GlobalKey();
@@ -12,7 +13,6 @@ class UserHotelItem extends StatelessWidget {
   Widget build(BuildContext context) {
     // print("bulidHotelItemCalled");
     final hotel = Provider.of<Hotel>(context);
-    print(hotel.reviews);
     final isFavorite = hotel.isFavorite;
     final noOfDays = Provider.of<UserFilter>(context)
         .noOfDays; //no of days of stay set in filter by the user
@@ -24,22 +24,52 @@ class UserHotelItem extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 2),
         child: AspectRatio(
-          aspectRatio: 16 / 11,
+          aspectRatio: 18 / 11,
           child: Stack(
             // alignment: Alignment.center,
             children: [
               _buildBackground(context, hotel.imageUrl),
               _buildGradient(),
-              _buildTitle(hotel.title, noOfDays * hotel.price),
+              _buildTitle(
+                  hotel.title,
+                  noOfDays * hotel.price,
+                  hotel.reviewsCount,
+                  hotel.avgRating,
+                  hotel.address,
+                  hotel.breakfastIncl),
+              // heart button
               Positioned(
                   top: 10,
                   right: 5,
-                  child: IconButton(
-                    icon: isFavorite
-                        ? const Icon(Icons.favorite)
-                        : const Icon(Icons.favorite_border_outlined),
-                    onPressed: () => Provider.of<Hotel>(context, listen: false)
-                        .toggleFavoriteStatus(auth.token!, auth.userId!),
+                  child: Stack(
+                    children: [
+                      Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(color: Colors.black, width: 0.6),
+                          color: Colors.white,
+                        ),
+                      ),
+                      Positioned(
+                        left: -4,
+                        bottom: -4,
+                        child: IconButton(
+                          icon: isFavorite
+                              ? const Icon(
+                                  Icons.favorite,
+                                  color: Colors.red,
+                                )
+                              : const Icon(
+                                  Icons.favorite_border_outlined,
+                                ),
+                          onPressed: () => Provider.of<Hotel>(context,
+                                  listen: false)
+                              .toggleFavoriteStatus(auth.token!, auth.userId!),
+                        ),
+                      ),
+                    ],
                   )),
             ],
           ),
@@ -57,10 +87,12 @@ class UserHotelItem extends StatelessWidget {
         backgroundImageKey: _backgroundImageKey,
       ),
       children: [
-        Image.network(
-          imageUrl,
-          key: _backgroundImageKey,
-          fit: BoxFit.cover,
+        Container(
+          child: Image.network(
+            imageUrl,
+            key: _backgroundImageKey,
+            fit: BoxFit.cover,
+          ),
         ),
       ],
     );
@@ -81,10 +113,11 @@ class UserHotelItem extends StatelessWidget {
     );
   }
 
-  Widget _buildTitle(String hotelName, num price) {
+  Widget _buildTitle(String hotelName, num price, int reviewsCount,
+      double avgRating, String location, bool breakfastIncl) {
     return Positioned(
       left: 20,
-      bottom: 20,
+      bottom: 15,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,18 +125,53 @@ class UserHotelItem extends StatelessWidget {
           Text(
             hotelName,
             style: const TextStyle(
-              color: Colors.white,
-              fontSize: 20,
-              fontWeight: FontWeight.w300,
-            ),
+                color: Colors.white,
+                fontSize: 25,
+                fontWeight: FontWeight.w500,
+                shadows: [
+                  Shadow(
+                    color: Colors.black,
+                    offset: Offset(-2, -2),
+                  )
+                ]),
           ),
           Text(
-            price.toString(),
+            "Rs.$price",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 14,
             ),
           ),
+          Row(
+            children: [
+              RatingBarIndicator(
+                rating: avgRating,
+                itemBuilder: (ctx, idx) => const Icon(
+                  Icons.circle,
+                  color: Colors.amber,
+                ),
+                itemCount: 5,
+                itemSize: 20.0,
+                direction: Axis.horizontal,
+              ),
+              Text(
+                "  ( $reviewsCount )",
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+          Text(
+            "$location",
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.w200, fontSize: 15),
+          ),
+          if (breakfastIncl)
+            const Text("Breakfast Included",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w200,
+                    fontSize: 15))
         ],
       ),
     );

@@ -8,6 +8,8 @@ import '../providers/hotels.dart';
 class DateSelector extends StatefulWidget {
   @override
   State<DateSelector> createState() => _DateSelectorState();
+  DateSelector({this.showLocationFilter = true});
+  bool showLocationFilter;
 }
 
 class _DateSelectorState extends State<DateSelector> {
@@ -49,6 +51,9 @@ class _DateSelectorState extends State<DateSelector> {
                       builder: (_) {
                         return StatefulBuilder(
                           builder: (ctx, innerSetState) => TableCalendar(
+                            calendarStyle: const CalendarStyle(
+                                todayDecoration:
+                                    BoxDecoration(color: Colors.amber)),
                             locale: "en_US",
                             rowHeight: 40,
                             headerStyle: const HeaderStyle(
@@ -81,8 +86,15 @@ class _DateSelectorState extends State<DateSelector> {
                         );
                       });
                 },
-                child: Text(
-                    "Check in : " + DateFormat('MMMMd').format(_checkInDay))),
+                child: Row(
+                  children: [
+                    const Text("Check in : "),
+                    Text(
+                      DateFormat('MMMMd').format(_checkInDay),
+                      style: const TextStyle(color: Colors.black),
+                    )
+                  ],
+                )),
             TextButton(
                 onPressed: () {
                   showModalBottomSheet(
@@ -90,6 +102,9 @@ class _DateSelectorState extends State<DateSelector> {
                       builder: (_) {
                         return StatefulBuilder(
                           builder: (ctx, innerSetState) => TableCalendar(
+                            calendarStyle: const CalendarStyle(
+                                todayDecoration:
+                                    BoxDecoration(color: Colors.amber)),
                             locale: "en_US",
                             rowHeight: 40,
                             headerStyle: const HeaderStyle(
@@ -113,8 +128,16 @@ class _DateSelectorState extends State<DateSelector> {
                         );
                       });
                 },
-                child: Text(
-                    "Check out : " + DateFormat('MMMMd').format(_checkOutDay))),
+                child: Row(
+                  children: [
+                    const Text("Check Out : "),
+                    Text(
+                      DateFormat('MMMMd').format(_checkOutDay),
+                      style: const TextStyle(
+                          color: Colors.black, fontWeight: FontWeight.w400),
+                    )
+                  ],
+                )),
           ],
         ),
         Row(
@@ -139,47 +162,45 @@ class _DateSelectorState extends State<DateSelector> {
             )
           ],
         ),
-        // Center(
-        //   child: TextFormField(
-        //     decoration: InputDecoration(label: Text('Location')),
-        //     initialValue: _location,
-        //     onChanged: (value) {
-        //       _location = value;
-        //       setState(() {});
-        //     },
-        //   ),
-        // ),
-        Column(
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  DropdownMenu<String>(
-                    controller: locationController,
-                    // enableFilter: true,
-                    leadingIcon: const Icon(Icons.location_city),
-                    label: const Text('location'),
-                    dropdownMenuEntries: locationEntries,
-                    onSelected: (String? location) {
-                      setState(() {
-                        _selectedLocation = location;
-                      });
-                    },
-                  ),
-                ],
+        if (widget.showLocationFilter)
+          Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    DropdownMenu<String>(
+                      controller: locationController,
+                      // enableFilter: true,
+                      leadingIcon: const Icon(Icons.location_city),
+                      label: const Text('location'),
+                      dropdownMenuEntries: locationEntries,
+                      onSelected: (String? location) {
+                        setState(() {
+                          _selectedLocation = location;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-
-        IconButton(
+            ],
+          ),
+        if (!widget.showLocationFilter)
+          const SizedBox(
+            height: 15,
+          ),
+        ElevatedButton(
             onPressed: () {
               Provider.of<UserFilter>(context, listen: false).setFilter(
                   _checkInDay, _checkOutDay, _selectedLocation, customerCount);
+              if (!widget.showLocationFilter) {
+                // since this may be called from show modal
+                Navigator.of(context).pop();
+              }
             },
-            icon: Icon(Icons.search))
+            child: const Text("Set Filter"))
       ],
     );
   }

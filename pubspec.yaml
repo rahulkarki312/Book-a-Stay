@@ -37,6 +37,9 @@ dependencies:
   table_calendar: ^3.0.9
   video_player: ^2.7.2
   blur: ^3.1.0
+  flutter_rating_bar: ^4.0.1
+  flutter_screenutil: ^5.9.0
+
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -90,7 +93,9 @@ flutter:
           # weight: 200
         - asset: assets/static/Montserrat-Light.ttf
           weight: 100
-        - asset: assets/static/Montserrat-Black.ttf
+        - asset: assets/static/Montserrat-SemiBold.ttf
+          weight: 400
+        - asset: assets/static/Montserrat-Bold.ttf
           weight: 700
           
   #   - family: Trajan Pro

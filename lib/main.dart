@@ -15,6 +15,8 @@ import 'screens/orders_screen.dart';
 import 'screens/admin/orders_screen_admin.dart';
 import './providers/userReview.dart';
 import 'screens/users_favorites_screen.dart';
+import 'screens/add_review_screen.dart';
+import 'screens/select_hotel_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,16 +57,11 @@ class MyApp extends StatelessWidget {
         child: Consumer<Auth>(
           builder: (ctx, auth, _) => MaterialApp(
             debugShowCheckedModeBanner: false,
-            //           theme: ThemeData().copyWith(
-            //         colorScheme: ThemeData().colorScheme.copyWith(secondary: Colors.black, primary: Colors.white),
-
-            // ),
             theme: ThemeData(
                 primaryColor: Colors.white,
                 fontFamily: "Montserrat",
-                colorScheme:
-                    ColorScheme.fromSwatch().copyWith(secondary: Colors.black)),
-
+                colorScheme: ColorScheme.fromSwatch()
+                    .copyWith(secondary: Colors.black, primary: Colors.amber)),
             title: " ",
             home: auth.isAuth & !auth.isAdmin
                 ? HomeScreen()
@@ -87,6 +84,8 @@ class MyApp extends StatelessWidget {
               OrdersScreenAdmin.routeName: (context) => OrdersScreenAdmin(),
               UsersFavoritesScreen.RouteName: (context) =>
                   UsersFavoritesScreen(),
+              AddReviewScreen.routeName: (context) => AddReviewScreen(),
+              SelectHotelScreen.routename: (context) => SelectHotelScreen()
             },
           ),
         ));

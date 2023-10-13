@@ -18,7 +18,10 @@ class Auth with ChangeNotifier {
   String? _username;
 
   String? get username {
-    return _username;
+    if (_token != null) {
+      return _username;
+    }
+    return "";
   }
 
   bool get isAuth {
@@ -100,7 +103,6 @@ class Auth with ChangeNotifier {
               'firstname': firstname,
               'lastname': lastname
             }));
-        _username = '$firstname $lastname';
       }
 
       // If it is called through login, first fetch the user-info from the server to set the username
@@ -113,6 +115,7 @@ class Auth with ChangeNotifier {
         users.forEach((key, value) {
           if (value['userId'] == userId) {
             _username = value['firstname']! + " " + value['lastname']!;
+            print("\n\n $username \n\n");
           }
         });
       }
@@ -198,6 +201,7 @@ class Auth with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     // prefs.remove('userData');
     prefs.clear();
+    print("logout executed");
   }
 
   void _autoLogout() {
