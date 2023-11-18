@@ -21,7 +21,7 @@ class Auth with ChangeNotifier {
     if (_token != null) {
       return _username;
     }
-    return "";
+    return null;
   }
 
   bool get isAuth {
@@ -103,6 +103,8 @@ class Auth with ChangeNotifier {
               'firstname': firstname,
               'lastname': lastname
             }));
+        _username = '$firstname $lastname';
+        print(_username);
       }
 
       // If it is called through login, first fetch the user-info from the server to set the username
@@ -160,6 +162,7 @@ class Auth with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('userData')) {
       // print("Not written yet");
+
       return false;
     }
 
@@ -193,15 +196,16 @@ class Auth with ChangeNotifier {
     _expiryDate = null;
     _isAdmin = false;
     _username = null;
+
     if (_authTimer != null) {
       _authTimer!.cancel();
       _authTimer = null;
     }
+
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     // prefs.remove('userData');
     prefs.clear();
-    print("logout executed");
   }
 
   void _autoLogout() {

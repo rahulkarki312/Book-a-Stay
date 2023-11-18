@@ -7,8 +7,20 @@ import '../screens/booking_page.dart';
 import '../widgets/parallax_flow_delegate.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
-class UserHotelItem extends StatelessWidget {
-  final GlobalKey _backgroundImageKey = GlobalKey();
+class UserHotelItem extends StatefulWidget {
+  @override
+  State<UserHotelItem> createState() => _UserHotelItemState();
+}
+
+class _UserHotelItemState extends State<UserHotelItem> {
+  late GlobalKey _backgroundImageKey;
+
+  @override
+  void initState() {
+    super.initState();
+    _backgroundImageKey = GlobalKey();
+  }
+
   @override
   Widget build(BuildContext context) {
     // print("bulidHotelItemCalled");
@@ -136,7 +148,7 @@ class UserHotelItem extends StatelessWidget {
                 ]),
           ),
           Text(
-            "Rs.$price",
+            "Rs.${price.toStringAsFixed(2)}",
             style: const TextStyle(
               color: Colors.white,
               fontSize: 14,

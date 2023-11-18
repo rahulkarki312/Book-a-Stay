@@ -55,7 +55,7 @@ class ReviewItem extends StatelessWidget {
                   rating: review.rating,
                   itemBuilder: (ctx, idx) => Icon(
                     showOnly! ? Icons.circle : Icons.star,
-                    color: showOnly! ? Colors.red : Colors.amber,
+                    color: showOnly! ? Colors.black : Colors.amber,
                   ),
                   itemCount: 5,
                   itemSize: showOnly! ? 15 : 20,

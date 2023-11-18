@@ -27,11 +27,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    super.initState();
-    setState(() => _isLoading = true);
+    _isLoading = true;
     Provider.of<Hotels>(context, listen: false)
         .fetchAndSetHotels()
-        .then((value) => setState(() => _isLoading = false));
+        .then((value) {
+      setState(() => _isLoading = false);
+    });
+    super.initState();
   }
 
   @override
@@ -51,17 +53,17 @@ class _HomeScreenState extends State<HomeScreen> {
         drawer: HomeDrawer(),
         appBar: AppBar(
           foregroundColor: Theme.of(context).primaryColor,
-          title: Text("Home Page"),
+          title: const Text("Home Page"),
           actions: [],
         ),
         body: _isLoading
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : ListView(
                 children: [
                   DateSelector(),
                   for (final hotel in hotels)
                     ChangeNotifierProvider.value(
-                        child: UserHotelItem(), value: hotel)
+                        value: hotel, child: UserHotelItem())
                   // HotelsGrid(),
                 ],
               ));

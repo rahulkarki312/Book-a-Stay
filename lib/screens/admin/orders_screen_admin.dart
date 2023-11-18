@@ -1,3 +1,4 @@
+import 'package:book_a_stay/widgets/home_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,20 +13,19 @@ class OrdersScreenAdmin extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('building orders');
-    // final orderData = Provider.of<Orders>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Customer Orders'),
+        title: const Text('Customer Orders'),
         actions: [
           IconButton(
               onPressed: () => Navigator.of(context).pop(),
-              icon: Icon(Icons.arrow_back_sharp))
+              icon: const Icon(Icons.arrow_back_sharp))
         ],
       ),
-      drawer: HomeDrawerAdmin(),
+      drawer: HomeDrawer(),
       body: FutureBuilder(
-        future: Provider.of<Orders>(context, listen: false).fetchAndSetOrders(),
+        future: Provider.of<Orders>(context, listen: false)
+            .fetchAndSetOrders(isAdmin: true),
         builder: (ctx, dataSnapshot) {
           if (dataSnapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -34,7 +34,7 @@ class OrdersScreenAdmin extends StatelessWidget {
               print('orders_screen :An error occurred! ' +
                   dataSnapshot.error.toString());
               // Do error handling stuff
-              return Center(
+              return const Center(
                 child: Text('An error occurred!'),
               );
             } else {

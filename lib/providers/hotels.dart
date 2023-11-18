@@ -54,18 +54,16 @@ class Hotels with ChangeNotifier {
       final favoriteResponse = await http.get(favoriteDataUrl);
       final favoriteData = json.decode(favoriteResponse.body);
 
-      final List<Hotel> LoadedHotels = [];
+      final List<Hotel> loadedHotels = [];
 
-      extractedData.forEach((hotelId, hotelData) async {
-        LoadedHotels.add(Hotel(
+      extractedData.forEach((hotelId, hotelData) {
+        loadedHotels.add(Hotel(
           id: hotelId,
           title: hotelData['title'],
           description: hotelData['description'],
           price: hotelData['price'],
           imageUrl: hotelData['imageUrl'],
-          breakfastIncl: hotelData['breakfastIncl'] == null
-              ? false
-              : hotelData['breakfastIncl'],
+          breakfastIncl: hotelData['breakfastIncl'] ?? false,
           discount:
               hotelData['discount'] == null ? 0.0 : (hotelData['discount']),
           address: hotelData['address'],
@@ -76,10 +74,10 @@ class Hotels with ChangeNotifier {
       });
 
       // fetch reviews for each hotel
-      LoadedHotels.forEach((hotel) async {
+
+      for (var hotel in loadedHotels) {
         final reviewsUrl = Uri.parse(
             "https://book-a-stay-app-default-rtdb.firebaseio.com/hotels/${hotel.id}/reviews.json?auth=$authToken");
-        List<ReviewDetails> loadedReviews = [];
 
         final reviewResponse = await http.get(reviewsUrl);
         // print("${hotel.id}: ${json.decode(reviewResponse.body)}\n\n");
@@ -93,8 +91,9 @@ class Hotels with ChangeNotifier {
               rating: double.parse(review['rating'].toString()),
               date: DateTime.parse(review['date'])));
         });
-      });
-      _hotels = LoadedHotels;
+      }
+
+      _hotels = loadedHotels;
       print(_hotels.length);
       notifyListeners();
     } catch (error) {
@@ -228,5 +227,9 @@ class Hotels with ChangeNotifier {
 
   List<ReviewDetails> get reviews {
     return _reviews;
+  }
+
+  void clear() {
+    _hotels = [];
   }
 }

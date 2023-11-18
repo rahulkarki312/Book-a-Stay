@@ -1,3 +1,5 @@
+import 'package:book_a_stay/screens/admin/admin_login_screen.dart';
+import 'package:book_a_stay/screens/admin/hotels_screen_admin.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -46,13 +48,6 @@ class MyApp extends StatelessWidget {
                 auth.isAdmin),
           ),
           ChangeNotifierProvider(create: (_) => UserFilter()),
-          // ChangeNotifierProxyProvider<Auth, UserReview>(
-          //   create: (_) => UserReview("", "", []),
-          //   update: (ctx, auth, previousReviews) => UserReview(
-          //       auth.token.toString(),
-          //       auth.userId.toString(),
-          //       previousReviews == null ? [] : previousReviews.reviews),
-          // ),
         ],
         child: Consumer<Auth>(
           builder: (ctx, auth, _) => MaterialApp(
@@ -63,29 +58,33 @@ class MyApp extends StatelessWidget {
                 colorScheme: ColorScheme.fromSwatch()
                     .copyWith(secondary: Colors.black, primary: Colors.amber)),
             title: " ",
-            home: auth.isAuth & !auth.isAdmin
+            home: auth.isAuth
                 ? HomeScreen()
-                : auth.isAuth & auth.isAdmin
-                    ? AdminHomeScreen()
-                    : FutureBuilder(
-                        future: auth.tryAutoLogin(),
-                        builder: (context, snapshot) =>
-                            snapshot.connectionState == ConnectionState.waiting
-                                ? LoadingScreen()
-                                : AuthScreen(),
-                        // here, if the tryAutoLogin is successful, the auth notifies listeners and
-                        //this whole consumer is rebuilt with auth.isAuth set to true and hence, HotelsOverviewScreen is shown
-                        // otherwise  in any case, the AuthScreen is shown
-                      ),
+                : FutureBuilder(
+                    future: auth.tryAutoLogin(),
+                    builder: (context, snapshot) =>
+                        snapshot.connectionState == ConnectionState.waiting
+                            ? LoadingScreen()
+                            : AuthScreen(),
+                    // here, if the tryAutoLogin is successful, the auth notifies listeners and
+                    //this whole consumer is rebuilt with auth.isAuth set to true and hence, HomeScreen is shown
+                    // otherwise  in any case, the AuthScreen is shown
+                  ),
             routes: {
+              HomeScreen.routename: (context) => const HomeScreen(),
               EditHotelScreen.routeName: (context) => EditHotelScreen(),
               BookingPage.routename: (context) => BookingPage(),
               OrdersScreen.routeName: (context) => OrdersScreen(),
               OrdersScreenAdmin.routeName: (context) => OrdersScreenAdmin(),
               UsersFavoritesScreen.RouteName: (context) =>
                   UsersFavoritesScreen(),
-              AddReviewScreen.routeName: (context) => AddReviewScreen(),
-              SelectHotelScreen.routename: (context) => SelectHotelScreen()
+              AddReviewScreen.routeName: (context) => const AddReviewScreen(),
+              SelectHotelScreen.routename: (context) =>
+                  const SelectHotelScreen(),
+              AdminHomeScreen.routeName: (context) => AdminHomeScreen(),
+              AdminLoginScreen.routeName: (context) => const AdminLoginScreen(),
+              AdminHotelsScreen.routeName: (context) =>
+                  const AdminHotelsScreen()
             },
           ),
         ));

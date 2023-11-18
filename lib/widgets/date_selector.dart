@@ -90,7 +90,7 @@ class _DateSelectorState extends State<DateSelector> {
                   children: [
                     const Text("Check in : "),
                     Text(
-                      DateFormat('MMMMd').format(_checkInDay),
+                      DateFormat('MMMd').format(_checkInDay),
                       style: const TextStyle(color: Colors.black),
                     )
                   ],
@@ -132,7 +132,7 @@ class _DateSelectorState extends State<DateSelector> {
                   children: [
                     const Text("Check Out : "),
                     Text(
-                      DateFormat('MMMMd').format(_checkOutDay),
+                      DateFormat('MMMd').format(_checkOutDay),
                       style: const TextStyle(
                           color: Colors.black, fontWeight: FontWeight.w400),
                     )
@@ -192,6 +192,10 @@ class _DateSelectorState extends State<DateSelector> {
             height: 15,
           ),
         ElevatedButton(
+            style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.black,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20))),
             onPressed: () {
               Provider.of<UserFilter>(context, listen: false).setFilter(
                   _checkInDay, _checkOutDay, _selectedLocation, customerCount);

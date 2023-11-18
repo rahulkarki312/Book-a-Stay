@@ -20,17 +20,17 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  late VideoPlayerController _controller;
+  late VideoPlayerController _videoController;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(
+    _videoController = VideoPlayerController.networkUrl(Uri.parse(
         'https://media.istockphoto.com/id/966113438/video/coconut-palm-trees-crowns-against-blue-sunny-sky-perspective-view-from-the-ground.mp4?s=mp4-640x640-is&k=20&c=TTDqd3rWhgVcbAGzlT8PTTuEdOAHA8wgiEJJOykuvFg='))
       ..initialize().then((_) {
-        _controller.play();
-        _controller.setLooping(true);
-        _controller.setVolume(0);
+        _videoController.play();
+        _videoController.setLooping(true);
+        _videoController.setVolume(0);
         //Ensure the first frame is shown after the value is initialized
         setState(() {});
       });
@@ -38,7 +38,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _videoController.dispose();
     super.dispose();
   }
 
@@ -56,17 +56,12 @@ class _AuthScreenState extends State<AuthScreen> {
               fit: BoxFit.cover,
               alignment: Alignment.centerLeft,
               child: SizedBox(
-                width: _controller.value.size.width ?? 0,
-                height: _controller.value.size.height ?? 0,
-                child: VideoPlayer(_controller),
+                width: _videoController.value.size.width ?? 0,
+                height: _videoController.value.size.height ?? 0,
+                child: VideoPlayer(_videoController),
               ),
             ),
           ),
-          // Container(
-          //   decoration: const BoxDecoration(
-          //     color: Colors.white,
-          //   ),
-          // ),
           SingleChildScrollView(
             child: Container(
               height: deviceSize.height,
@@ -131,9 +126,7 @@ class _AuthScreenState extends State<AuthScreen> {
 }
 
 class AuthCard extends StatefulWidget {
-  // const AuthCard({
-  //  required Key key,
-  // }) : super(key: key);
+  const AuthCard({super.key});
 
   @override
   _AuthCardState createState() => _AuthCardState();
@@ -153,31 +146,31 @@ class _AuthCardState extends State<AuthCard>
 
   var _isLoading = false;
   final _passwordController = TextEditingController();
-  late AnimationController _controller;
+  late AnimationController _videoController;
   late Animation<Size> _heightAnimation;
   late Animation<double> _opacityAnimation;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
+    _videoController = AnimationController(
         vsync: this,
         duration: const Duration(
           milliseconds: 400,
         ));
     _heightAnimation = Tween<Size>(
             begin: Size(double.infinity, 260), end: Size(double.infinity, 320))
-        .animate(
-            CurvedAnimation(parent: _controller, curve: Curves.fastOutSlowIn));
-    _opacityAnimation = Tween(begin: 0.0, end: 1.0)
-        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+        .animate(CurvedAnimation(
+            parent: _videoController, curve: Curves.fastOutSlowIn));
+    _opacityAnimation = Tween(begin: 0.0, end: 1.0).animate(
+        CurvedAnimation(parent: _videoController, curve: Curves.easeInOut));
 
     // _heightAnimation.addListener(() => setState(() {}));
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _videoController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -254,12 +247,12 @@ class _AuthCardState extends State<AuthCard>
       setState(() {
         _authMode = AuthMode.Signup;
       });
-      _controller.forward();
+      _videoController.forward();
     } else {
       setState(() {
         _authMode = AuthMode.Login;
       });
-      _controller.reverse();
+      _videoController.reverse();
     }
   }
 
@@ -402,21 +395,16 @@ class _AuthCardState extends State<AuthCard>
                 else
                   ElevatedButton(
                     onPressed: _submit,
-                    child:
-                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
+                    child: Text(
+                      _authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP',
+                      style: const TextStyle(color: Colors.black),
+                    ),
                   ),
                 TextButton(
                   onPressed: _switchAuthMode,
                   child: Text(
                       '${_authMode == AuthMode.Login ? 'SIGNUP' : 'LOGIN'} INSTEAD'),
                 ),
-                if (_authMode == AuthMode.Login)
-                  TextButton(
-                    onPressed: () {
-                      _submit(loginAsAdmin: true);
-                    },
-                    child: const Text("LOG IN AS ADMIN"),
-                  )
               ],
             ),
           ),

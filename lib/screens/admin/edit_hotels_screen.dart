@@ -125,8 +125,8 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
         await showDialog(
             context: context,
             builder: (ctx) => AlertDialog(
-                  title: Text("An error occured !"),
-                  content: Text("Something went wrong!"),
+                  title: const Text("An error occured !"),
+                  content: const Text("Something went wrong!"),
                   actions: [
                     TextButton(
                         onPressed: () {
@@ -144,32 +144,33 @@ class _EditHotelScreenState extends State<EditHotelScreen> {
     setState(() {
       _isLoading = false;
     });
-    Navigator.of(context).pop();
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Scaffold(
       appBar: AppBar(
         iconTheme:
             IconThemeData(color: Theme.of(context).colorScheme.secondary),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text(
           "Edit Hotel",
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          style: TextStyle(color: Theme.of(context).primaryColor),
         ),
         actions: [
           IconButton(
               onPressed: _saveForm,
-              icon: Icon(
+              icon: const Icon(
                 Icons.save,
                 color: Colors.white,
               ))
         ],
       ),
       body: _isLoading
-          ? Center(
+          ? const Center(
               child: CircularProgressIndicator(),
             )
           : Padding(

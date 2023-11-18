@@ -42,10 +42,13 @@ class _BookingPageState extends State<BookingPage> {
 
   Future<void> _order() async {
     Hotel hotel = Provider.of<Hotels>(context, listen: false).findById(hotelId);
-    DateTime checkInDay = Provider.of<UserFilter>(context).checkInDay;
-    DateTime checkOutDay = Provider.of<UserFilter>(context).checkOutDay;
+    DateTime checkInDay =
+        Provider.of<UserFilter>(context, listen: false).checkInDay;
+    DateTime checkOutDay =
+        Provider.of<UserFilter>(context, listen: false).checkOutDay;
     int noOfDays = checkOutDay.difference(checkInDay).inDays;
-    int customerCount = Provider.of<UserFilter>(context).customerCount;
+    int customerCount =
+        Provider.of<UserFilter>(context, listen: false).customerCount;
     setState(() {
       _isOrderLoading = true;
     });
@@ -76,15 +79,15 @@ class _BookingPageState extends State<BookingPage> {
       await showDialog(
           context: context,
           builder: (ctx) => AlertDialog(
-                title: Text("An error occured !"),
-                content: Text("Something went wrong!"),
+                title: const Text("An error occured !"),
+                content: const Text("Something went wrong!"),
                 actions: [
                   TextButton(
                       onPressed: () {
                         setState(() => _isOrderLoading = false);
                         Navigator.of(ctx).pop();
                       },
-                      child: Text("Okay"))
+                      child: const Text("Okay"))
                 ],
               ));
     }
@@ -101,7 +104,6 @@ class _BookingPageState extends State<BookingPage> {
     int customerCount =
         Provider.of<UserFilter>(context, listen: false).customerCount;
 
-    // TODO: implement build
     return Scaffold(
         appBar: AppBar(
           title: Text("Book ${hotel.title}"),
@@ -194,8 +196,11 @@ class _BookingPageState extends State<BookingPage> {
                                 const SizedBox(height: 15),
                                 const Text(
                                   "Change Your Reservation Filter",
-                                  style: TextStyle(fontSize: 20),
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold),
                                 ),
+                                const Divider(),
                                 const SizedBox(height: 15),
                                 DateSelector(
                                   showLocationFilter: false,
@@ -234,7 +239,7 @@ class _BookingPageState extends State<BookingPage> {
                   ),
 
                   _isOrderLoading
-                      ? const Center(child: const CircularProgressIndicator())
+                      ? const Center(child: CircularProgressIndicator())
                       : Container(
                           width: double.infinity,
                           child: ElevatedButton(
@@ -243,7 +248,21 @@ class _BookingPageState extends State<BookingPage> {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: const Text('Confirm Booking'),
+                                    title: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                            backgroundColor: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(15))),
+                                        onPressed: () {},
+                                        child: const Text(
+                                          'Confirm Booking',
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: 18),
+                                        )),
                                     content: Text(
                                       'Do you want to book an order at ${hotel.title}? \n Check In : ${DateFormat.yMMMEd().format(checkInDay)} \n Check Out: ${DateFormat.yMMMEd().format(checkOutDay)} \n people: $customerCount \n Total price: ${noOfDays * hotel.price} ',
                                     ),
@@ -254,23 +273,25 @@ class _BookingPageState extends State<BookingPage> {
                                               .textTheme
                                               .labelLarge,
                                         ),
-                                        child: const Text('Cancel'),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                      TextButton(
-                                        style: TextButton.styleFrom(
-                                          textStyle: Theme.of(context)
-                                              .textTheme
-                                              .labelLarge,
+                                        child: const Text(
+                                          'Cancel',
+                                          style: TextStyle(color: Colors.black),
                                         ),
-                                        child: const Text('Confirm'),
                                         onPressed: () {
-                                          _order();
                                           Navigator.of(context).pop();
                                         },
                                       ),
+                                      ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.black,
+                                          ),
+                                          onPressed: () {
+                                            _order();
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text(
+                                            'Confirm',
+                                          )),
                                     ],
                                   );
                                 },

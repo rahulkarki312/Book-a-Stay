@@ -51,7 +51,7 @@ class Orders with ChangeNotifier {
     }
   }
 
-  Future fetchAndSetOrders() async {
+  Future fetchAndSetOrders({bool isAdmin = false}) async {
     List<Order> loadedOrders = [];
 
     final url = Uri.parse(
